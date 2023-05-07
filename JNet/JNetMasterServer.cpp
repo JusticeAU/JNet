@@ -39,6 +39,14 @@ void JNet::MasterServer::Initialize()
 	server2.address = "192.168.1.0";
 	server2.port = 6051;
 	m_balancedServers.push_back(server2);
+
+	BalancedServerReference server3;
+	server3.name = "Australia 3";
+	server3.address = "192.168.1.0";
+	server3.port = 6052;
+	m_balancedServers.push_back(server3);
+
+
 }
 
 void JNet::MasterServer::Run()
