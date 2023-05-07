@@ -22,6 +22,7 @@
     <ClInclude Include="JNetBalancedServer.h" />
     <ClInclude Include="JNetClient.h" />
     <ClInclude Include="JNetMasterServer.h" />
+    <ClInclude Include="JNetPackets.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="JNetBalancedServer.cpp" />

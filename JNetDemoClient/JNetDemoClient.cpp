@@ -19,7 +19,8 @@ int main()
     Client client;
     client.Initialise();
     client.SetMasterServer(address, 6000);
-    client.Connect();
+    client.ConnectToMasterServer();
+    client.Run();
 
     // Auth, get redirected to Balanced server
 

@@ -6,6 +6,7 @@
 
 struct _ENetAddress;
 struct _ENetHost;
+struct _ENetEvent;
 
 using std::vector;
 using std::string;
@@ -35,5 +36,8 @@ namespace JNet
 		void Initialize();
 		void Run();
 		void Process();
+		
+		void InterpretUserPacket(_ENetEvent& receivedEvent);
+		void InterpretBalancedServerPacket(_ENetEvent& receivedEvent);
 	};
 }

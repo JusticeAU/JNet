@@ -1,4 +1,5 @@
 #include "JNetMasterServer.h"
+#include "JNetPackets.h"
 #include "enet/enet.h"
 
 #include <random>
@@ -23,20 +24,6 @@ void JNet::MasterServer::Initialize()
 
 	if (m_ENetServer != nullptr)
 		std::cout << "Successfully created Server" << std::endl;
-
-
-	// Create two dummy servers
-	BalancedServerReference server1;
-	server1.name = "Australia 1";
-	server1.address = "192.168.1.0";
-	server1.port = 6050;
-	m_balancedServers.push_back(server1);
-
-	BalancedServerReference server2;
-	server2.name = "Australia 2";
-	server2.address = "192.168.1.0";
-	server2.port = 6051;
-	m_balancedServers.push_back(server2);
 }
 
 void JNet::MasterServer::Run()
@@ -54,42 +41,114 @@ void JNet::MasterServer::Process()
 	ENetEvent receivedEvent;
 	while (enet_host_service(m_ENetServer, &receivedEvent, 100) > 0)
 	{
-        std::cout << "Master Server received a packet!" << std::endl;
-		// switch on packet type
-        switch (receivedEvent.type)
-        {
-        case ENET_EVENT_TYPE_CONNECT:
-        {
-            std::cout << "A new client connected to the Master Server" << std::endl;
-			std::cout << "Redirect user to " << m_balancedServers[m_nextServer].name << std::endl;
-			
-			ENetPeer* serverPeer = nullptr;
-			serverPeer = receivedEvent.peer;
-			ENetPacket* infoPacket = enet_packet_create(&m_balancedServers[m_nextServer], sizeof(BalancedServerReference), ENET_PACKET_FLAG_RELIABLE);
-			enet_peer_send(serverPeer, 0, infoPacket);
+		switch(receivedEvent.type)
+		{
+		case ENET_EVENT_TYPE_CONNECT:
+		{
+			std::cout << "New Connection!" << std::endl;
+			break;
+		}
+		case ENET_EVENT_TYPE_RECEIVE:
+		{
+			switch (receivedEvent.channelID)
+			{
+			case 0:
+				InterpretUserPacket(receivedEvent);
+				break;
+			case 1:
+				InterpretBalancedServerPacket(receivedEvent);
+				break;
+			default:
+				break;
+			}
+			break;
+		}
+		case ENET_EVENT_TYPE_DISCONNECT:
+		{
+			break;
+		}
+		}
+	}
+}
+
+void JNet::MasterServer::InterpretUserPacket(_ENetEvent& receivedEvent)
+{
+	std::cout << "Processing User Packet" << std::endl;
+	// switch on packet type
+	JNetPacket* packet = (JNetPacket*)receivedEvent.packet->data;
+	switch (packet->type)
+	{
+	case JNetPacketType::UAuth:
+	{
+		ENetPacket* infoPacket;
+		ENetPeer* serverPeer = receivedEvent.peer;
+
+		if (m_balancedServers.size() == 0)
+		{
+			JNet::MasterServerErrorMessage errorMsg;
+			strcpy_s(errorMsg.message, "No Servers available. Please try again later");
+			infoPacket = enet_packet_create(&errorMsg, sizeof(JNet::MasterServerErrorMessage), ENET_PACKET_FLAG_RELIABLE);
+		}
+		else
+		{
+			BalancedServerReference server = m_balancedServers[m_nextServer];
+			std::cout << "Redirect user to " << server.name << std::endl; // should show username here for verbosity.
+
+
+			JNet::MasterServerRedirect redirectTo;
+			strcpy_s(redirectTo.name, server.name.c_str());
+			strcpy_s(redirectTo.hostname, server.address.c_str());
+			redirectTo.port = server.port;
+			infoPacket = enet_packet_create(&redirectTo, sizeof(JNet::MasterServerRedirect), ENET_PACKET_FLAG_RELIABLE);
 
 			m_nextServer++;
 			if (m_nextServer == m_balancedServers.size()) m_nextServer = 0;
+		}
 
-            break;
-        }
-        case ENET_EVENT_TYPE_DISCONNECT:
-        {
-            std::cout << "A client disconnected from the Master Server" << std::endl;
-            break;
-        }
-        case ENET_EVENT_TYPE_RECEIVE:
-        {
-            std::cout << "We received a user-defined packet!" << std::endl;
-            break;
-        }
-        default:
-        {
-            std::cout << "We received some other data!" << std::endl;
-            break;
-        }
-        }
+		enet_peer_send(serverPeer, 0, infoPacket);
+		break;
 	}
+	default:
+	{
+		std::cout << "We received some other data!" << std::endl;
+		break;
+	}
+	}
+}
 
-	// if auth request, qualify, determine server, respond
+void JNet::MasterServer::InterpretBalancedServerPacket(_ENetEvent& receivedEvent)
+{
+	std::cout << "We received a user-defined Balanced Server packet!" << std::endl;
+	JNetPacket* packet = (JNetPacket*)receivedEvent.packet->data;
+	switch (packet->type)
+	{
+	case JNetPacketType::BSRegister:
+		// Add to list
+	{
+		BalancedServerRegister* bsRegister = (BalancedServerRegister*)receivedEvent.packet->data;
+		std::cout << "Received a register event from a Balanced Server" << std::endl;
+		std::cout << bsRegister->name << std::endl;
+		std::cout << bsRegister->hostname << std::endl;
+		std::cout << bsRegister->port << std::endl;
+		BalancedServerReference server;
+		server.name = bsRegister->name;
+		server.address = bsRegister->hostname;
+		server.port = bsRegister->port;
+		m_balancedServers.push_back(server);
+	}
+		break;
+	case JNetPacketType::BSUpdate:
+		// Update this BS
+	{
+		BalancedServerUpdate* bsUpdate = (BalancedServerUpdate*)receivedEvent.packet->data;
+		std::cout << "Received a register event from a Balanced Server" << std::endl;
+		std::cout << bsUpdate->playerCount << std::endl;
+		std::cout << bsUpdate->playerCapacity << std::endl;
+		std::cout << bsUpdate->sessionCount << std::endl;
+		std::cout << bsUpdate->open << std::endl;
+	}
+		break;
+	default:
+		std::cout << "Received an unknown packet type from Balanced Server" << std::endl;
+	}
 }

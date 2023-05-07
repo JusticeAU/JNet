@@ -11,6 +11,9 @@
     <Filter Include="BalancedServer">
       <UniqueIdentifier>{4b6d9132-0ea3-43b8-a8b7-4794c3fa9f28}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SharedPackets">
+      <UniqueIdentifier>{b78eaba9-a72f-4182-a357-dc4886c4894c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="JNetMasterServer.cpp">
@@ -32,6 +35,9 @@
     </ClInclude>
     <ClInclude Include="JNetClient.h">
       <Filter>Client</Filter>
+    </ClInclude>
+    <ClInclude Include="JNetPackets.h">
+      <Filter>SharedPackets</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

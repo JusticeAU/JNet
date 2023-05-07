@@ -5,6 +5,7 @@
 using std::string;
 
 struct _ENetHost;
+struct _ENetPeer;
 
 namespace JNet
 {
@@ -36,19 +37,22 @@ namespace JNet
 
 
 	private:
-		MasterServerReference m_masterServer;
-		BalancedServerReference m_balancedServer;
-		GameSessionReference m_gameSession;
+		string	m_masterServerAddress;
+		int		m_masterServerPort;
+
+		string	m_balancedServerName;
+		string	m_balancedServerAddress;
+		int		m_balancedServerPort;
 
 		_ENetHost* m_ENetClient;
+		_ENetPeer* m_ENetPeer;
 
 	public:
 		void Initialise();
 		void SetMasterServer(string address, unsigned int port);
-		void Connect();
-	private:
 		void ConnectToMasterServer();
-		//void ConnectToBalancedServer();
-		//void ConnectToGameSession();
+		void ConnectToBalancedServer();
+		void ConnectToGameSession();
+		void Run();
 	};
 }
