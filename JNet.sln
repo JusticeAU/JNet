@@ -1,0 +1,67 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32825.248
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "JNet", "JNet\JNet.vcxproj", "{94C0EB46-F912-425F-BF2B-55F879ECB0F9}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "JNetDemoClient", "JNetDemoClient\JNetDemoClient.vcxproj", "{BAD82EBA-124C-4E0A-8044-EB65AC41BAF4}"
+	ProjectSection(ProjectDependencies) = postProject
+		{94C0EB46-F912-425F-BF2B-55F879ECB0F9} = {94C0EB46-F912-425F-BF2B-55F879ECB0F9}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "JNetDemoMasterServer", "JNetDemoMasterServer\JNetDemoMasterServer.vcxproj", "{746566DE-6A31-4944-B759-3E9E3304EED0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{94C0EB46-F912-425F-BF2B-55F879ECB0F9} = {94C0EB46-F912-425F-BF2B-55F879ECB0F9}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "JNetDemoBalancedServer", "JNetDemoBalancedServer\JNetDemoBalancedServer.vcxproj", "{49807DF2-7E2A-4CA1-A244-54F012F99E80}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{94C0EB46-F912-425F-BF2B-55F879ECB0F9}.Debug|x64.ActiveCfg = Debug|x64
+		{94C0EB46-F912-425F-BF2B-55F879ECB0F9}.Debug|x64.Build.0 = Debug|x64
+		{94C0EB46-F912-425F-BF2B-55F879ECB0F9}.Debug|x86.ActiveCfg = Debug|Win32
+		{94C0EB46-F912-425F-BF2B-55F879ECB0F9}.Debug|x86.Build.0 = Debug|Win32
+		{94C0EB46-F912-425F-BF2B-55F879ECB0F9}.Release|x64.ActiveCfg = Release|x64
+		{94C0EB46-F912-425F-BF2B-55F879ECB0F9}.Release|x64.Build.0 = Release|x64
+		{94C0EB46-F912-425F-BF2B-55F879ECB0F9}.Release|x86.ActiveCfg = Release|Win32
+		{94C0EB46-F912-425F-BF2B-55F879ECB0F9}.Release|x86.Build.0 = Release|Win32
+		{BAD82EBA-124C-4E0A-8044-EB65AC41BAF4}.Debug|x64.ActiveCfg = Debug|x64
+		{BAD82EBA-124C-4E0A-8044-EB65AC41BAF4}.Debug|x64.Build.0 = Debug|x64
+		{BAD82EBA-124C-4E0A-8044-EB65AC41BAF4}.Debug|x86.ActiveCfg = Debug|Win32
+		{BAD82EBA-124C-4E0A-8044-EB65AC41BAF4}.Debug|x86.Build.0 = Debug|Win32
+		{BAD82EBA-124C-4E0A-8044-EB65AC41BAF4}.Release|x64.ActiveCfg = Release|x64
+		{BAD82EBA-124C-4E0A-8044-EB65AC41BAF4}.Release|x64.Build.0 = Release|x64
+		{BAD82EBA-124C-4E0A-8044-EB65AC41BAF4}.Release|x86.ActiveCfg = Release|Win32
+		{BAD82EBA-124C-4E0A-8044-EB65AC41BAF4}.Release|x86.Build.0 = Release|Win32
+		{746566DE-6A31-4944-B759-3E9E3304EED0}.Debug|x64.ActiveCfg = Debug|x64
+		{746566DE-6A31-4944-B759-3E9E3304EED0}.Debug|x64.Build.0 = Debug|x64
+		{746566DE-6A31-4944-B759-3E9E3304EED0}.Debug|x86.ActiveCfg = Debug|Win32
+		{746566DE-6A31-4944-B759-3E9E3304EED0}.Debug|x86.Build.0 = Debug|Win32
+		{746566DE-6A31-4944-B759-3E9E3304EED0}.Release|x64.ActiveCfg = Release|x64
+		{746566DE-6A31-4944-B759-3E9E3304EED0}.Release|x64.Build.0 = Release|x64
+		{746566DE-6A31-4944-B759-3E9E3304EED0}.Release|x86.ActiveCfg = Release|Win32
+		{746566DE-6A31-4944-B759-3E9E3304EED0}.Release|x86.Build.0 = Release|Win32
+		{49807DF2-7E2A-4CA1-A244-54F012F99E80}.Debug|x64.ActiveCfg = Debug|x64
+		{49807DF2-7E2A-4CA1-A244-54F012F99E80}.Debug|x64.Build.0 = Debug|x64
+		{49807DF2-7E2A-4CA1-A244-54F012F99E80}.Debug|x86.ActiveCfg = Debug|Win32
+		{49807DF2-7E2A-4CA1-A244-54F012F99E80}.Debug|x86.Build.0 = Debug|Win32
+		{49807DF2-7E2A-4CA1-A244-54F012F99E80}.Release|x64.ActiveCfg = Release|x64
+		{49807DF2-7E2A-4CA1-A244-54F012F99E80}.Release|x64.Build.0 = Release|x64
+		{49807DF2-7E2A-4CA1-A244-54F012F99E80}.Release|x86.ActiveCfg = Release|Win32
+		{49807DF2-7E2A-4CA1-A244-54F012F99E80}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4AAED164-4E39-4B38-A6C9-22E69B32588E}
+	EndGlobalSection
+EndGlobal

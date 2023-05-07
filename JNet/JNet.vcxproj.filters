@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="MasterServer">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Client">
+      <UniqueIdentifier>{b3f8bb7c-9fd9-4407-b6c7-5c18318d11fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="BalancedServer">
+      <UniqueIdentifier>{4b6d9132-0ea3-43b8-a8b7-4794c3fa9f28}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="JNetMasterServer.cpp">
+      <Filter>MasterServer</Filter>
+    </ClCompile>
+    <ClCompile Include="JNetBalancedServer.cpp">
+      <Filter>BalancedServer</Filter>
+    </ClCompile>
+    <ClCompile Include="JNetClient.cpp">
+      <Filter>Client</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="JNetMasterServer.h">
+      <Filter>MasterServer</Filter>
+    </ClInclude>
+    <ClInclude Include="JNetBalancedServer.h">
+      <Filter>BalancedServer</Filter>
+    </ClInclude>
+    <ClInclude Include="JNetClient.h">
+      <Filter>Client</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
