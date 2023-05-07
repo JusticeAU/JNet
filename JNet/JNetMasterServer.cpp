@@ -22,9 +22,7 @@ void JNet::MasterServer::Initialize()
 	m_ENetServer = enet_host_create(m_address, 32, 2, 0, 0);
 
 	if (m_ENetServer != nullptr)
-		std::cout << "Successfully created ENet server" << std::endl;
-	else
-		std::cout << "Failed to create ENet server" << std::endl;
+		std::cout << "Successfully created Server" << std::endl;
 
 
 	// Create two dummy servers
@@ -39,14 +37,6 @@ void JNet::MasterServer::Initialize()
 	server2.address = "192.168.1.0";
 	server2.port = 6051;
 	m_balancedServers.push_back(server2);
-
-	BalancedServerReference server3;
-	server3.name = "Australia 3";
-	server3.address = "192.168.1.0";
-	server3.port = 6052;
-	m_balancedServers.push_back(server3);
-
-
 }
 
 void JNet::MasterServer::Run()
@@ -55,7 +45,6 @@ void JNet::MasterServer::Run()
 	{
 		Process();
 		std::this_thread::sleep_for(std::chrono::milliseconds(16));
-		//std::cout << "Looping" << std::endl;
 	}
 }
 
