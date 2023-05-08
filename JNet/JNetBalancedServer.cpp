@@ -35,52 +35,103 @@ void JNet::BalancedServer::SetMyConnectionInfo(string myName, string myAddress, 
 
 void JNet::BalancedServer::ConnectToMasterServer()
 {
-    m_ENetClient = enet_host_create(nullptr, 1, 2, 0, 0);
+    m_ENetMasterServerClient = enet_host_create(nullptr, 1, 2, 0, 0);
 
     ENetAddress address;
     enet_address_set_host(&address, m_masterServerAddress.c_str());
     address.port = m_masterServerPort;
 
     
-    m_ENetPeer = enet_host_connect(m_ENetClient, &address, 2, 0);
+    m_ENetMasterServerPeer = enet_host_connect(m_ENetMasterServerClient, &address, 2, 0);
+}
+
+void JNet::BalancedServer::OpenForConnections()
+{
+    ENetAddress address;
+    address.host = ENET_HOST_ANY;
+    address.port = m_myPort;
+
+    m_ENetBalancedServerClient = enet_host_create(&address, 32, 2, 0, 0);
+
+    JNet::BalancedServerUpdate update;
+    update.playerCapacity = m_ENetBalancedServerClient->peerCount;
+    update.open = true;
+    ENetPacket* packet = enet_packet_create(&update, sizeof(JNet::BalancedServerUpdate), ENET_PACKET_FLAG_RELIABLE);
+    enet_peer_send(m_ENetMasterServerPeer, 1, packet);
 }
 
 void JNet::BalancedServer::Run()
 {
     while (true) // client loop
     {
-        ENetEvent receivedEvent; // the variable to place the info in.
-
-        // While more information awats us...
-        while (enet_host_service(m_ENetClient, &receivedEvent, 100) > 0)
+        ENetEvent MSreceivedEvent; // the variable to place the info in.
+        
+        // Communications from Master Server
+        while (enet_host_service(m_ENetMasterServerClient, &MSreceivedEvent, 100) > 0)
         {
-            // Process
-            std::cout << "client received a packet!" << std::endl;
-            switch (receivedEvent.type)
+            switch (MSreceivedEvent.type)
             {
             case ENET_EVENT_TYPE_CONNECT:
-                std::cout << "We have confirmed connection with the server. Registering self." << std::endl;
+                std::cout << "We have confirmed connection with the Master Server. Registering self." << std::endl;
                 {
                     JNet::BalancedServerRegister registerPacket;
                     strcpy_s(registerPacket.name, m_myName.c_str());
                     strcpy_s(registerPacket.hostname, m_myAddress.c_str()); // This should actually be from its listen/host instance
                     registerPacket.port = m_myPort;
                     ENetPacket* packet = enet_packet_create(&registerPacket, sizeof(JNet::BalancedServerRegister), ENET_PACKET_FLAG_RELIABLE);
-                    enet_peer_send(m_ENetPeer, 1, packet);
+                    enet_peer_send(m_ENetMasterServerPeer, 1, packet);
+                    m_connectedToMasterServer = true;
                 }
                 break;
             case ENET_EVENT_TYPE_DISCONNECT:
             {
-                std::cout << "We have disconnected from the server." << std::endl;
+                std::cout << "We have disconnected from the Master Server." << std::endl;
                 break;
             }
             case ENET_EVENT_TYPE_RECEIVE:
             {
-                std::cout << "We received a user-defined packet!" << std::endl;
+                std::cout << "We received a user-defined packet from the Master Server" << std::endl;
                 break;
             }
             default:
-                std::cout << "some other data received" << std::endl;
+                std::cout << "Some other data received from the Master Server" << std::endl;
+                break;
+            }
+        }
+
+        // Update internal state regarding master server.
+        if (m_connectedToMasterServer && !m_openForConnections)
+        {
+            OpenForConnections();
+            m_openForConnections = true;
+        }
+
+        ENetEvent BSreceivedEvent; // the variable to place the info in.
+
+        // communications from connected clients
+        if (m_ENetBalancedServerClient == nullptr)
+            continue;
+
+        std::cout << "processing our own server" << std::endl;
+        while (enet_host_service(m_ENetBalancedServerClient, &BSreceivedEvent, 100) > 0)
+        {
+            switch (BSreceivedEvent.type)
+            {
+            case ENET_EVENT_TYPE_CONNECT:
+                std::cout << "We have had a Client connect." << std::endl;
+                break;
+            case ENET_EVENT_TYPE_DISCONNECT:
+            {
+                std::cout << "We have had a Client disconnect." << std::endl;
+                break;
+            }
+            case ENET_EVENT_TYPE_RECEIVE:
+            {
+                std::cout << "We received a user-defined packet from a Client." << std::endl;
+                break;
+            }
+            default:
+                std::cout << "We received some other data from a Client." << std::endl;
                 break;
             }
         }

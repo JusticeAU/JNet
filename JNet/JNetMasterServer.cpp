@@ -106,6 +106,7 @@ void JNet::MasterServer::InterpretUserPacket(_ENetEvent& receivedEvent)
 		}
 
 		enet_peer_send(serverPeer, 0, infoPacket);
+		enet_peer_disconnect_later(serverPeer, 0);
 		break;
 	}
 	default:
@@ -127,9 +128,7 @@ void JNet::MasterServer::InterpretBalancedServerPacket(_ENetEvent& receivedEvent
 	{
 		BalancedServerRegister* bsRegister = (BalancedServerRegister*)receivedEvent.packet->data;
 		std::cout << "Received a register event from a Balanced Server" << std::endl;
-		std::cout << bsRegister->name << std::endl;
-		std::cout << bsRegister->hostname << std::endl;
-		std::cout << bsRegister->port << std::endl;
+		std::cout << "\tName: " << bsRegister->name << " - Hostname: " << bsRegister->hostname << " - Port: " << bsRegister->port << std::endl;
 		BalancedServerReference server;
 		server.name = bsRegister->name;
 		server.address = bsRegister->hostname;
@@ -141,11 +140,11 @@ void JNet::MasterServer::InterpretBalancedServerPacket(_ENetEvent& receivedEvent
 		// Update this BS
 	{
 		BalancedServerUpdate* bsUpdate = (BalancedServerUpdate*)receivedEvent.packet->data;
-		std::cout << "Received a register event from a Balanced Server" << std::endl;
-		std::cout << bsUpdate->playerCount << std::endl;
-		std::cout << bsUpdate->playerCapacity << std::endl;
-		std::cout << bsUpdate->sessionCount << std::endl;
-		std::cout << bsUpdate->open << std::endl;
+		std::cout << "Received an update event from a Balanced Server" << std::endl;
+		std::cout << "\tPlayer Count: " << bsUpdate->playerCount
+			<< " - Player Capacity: " << bsUpdate->playerCapacity
+			<< " - Session Count: " << bsUpdate->sessionCount
+			<< " - Open for new connections: " << bsUpdate->open << std::endl;
 	}
 		break;
 	default:

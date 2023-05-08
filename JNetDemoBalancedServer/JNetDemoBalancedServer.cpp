@@ -6,7 +6,6 @@
 int main(int argc, char* argv[]) // note the starting arguments here
 {
     // Balanced server should take the IP address and port arguments provided to it on launch, initialise itself and connect to the master server under this balanced server contexts and 'check in'
-    std::cout << "Balanced Server eyyy" << std::endl;
     string address;
     int port;
     string myName = "Unnamed Balanced Server";

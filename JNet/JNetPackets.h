@@ -33,10 +33,10 @@ namespace JNet
 	struct BalancedServerUpdate
 	{
 		JNetPacketType type = JNetPacketType::BSUpdate;
-		int playerCount;
-		int playerCapacity;
-		int sessionCount;
-		bool open;
+		int playerCount = 0;
+		int playerCapacity = 0;
+		int sessionCount = 0;
+		bool open = false;
 	};
 
 	struct MasterServerRedirect

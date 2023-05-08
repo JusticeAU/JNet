@@ -40,12 +40,17 @@ namespace JNet
 		string	m_masterServerAddress;
 		int		m_masterServerPort;
 
+		_ENetHost* m_ENetMasterServerClient;
+		_ENetPeer* m_ENetMasterServerPeer;
+		bool m_shouldCloseMasterServerHost = false;
+
 		string	m_balancedServerName;
 		string	m_balancedServerAddress;
 		int		m_balancedServerPort;
+		bool	m_balancedServerReceived = false;
 
-		_ENetHost* m_ENetClient;
-		_ENetPeer* m_ENetPeer;
+		_ENetHost* m_ENetBalancedServerClient;
+		_ENetPeer* m_ENetBalancedServerPeer;
 
 	public:
 		void Initialise();
