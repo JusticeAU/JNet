@@ -20,11 +20,15 @@ int main()
     client.Initialise();
     client.SetMasterServer(address, 6000);
     client.ConnectToMasterServer();
-    client.Run();
 
     // Auth, get redirected to Balanced server
 
     // Auth, stay connected to Balanced Server but also connecto Game Session
 
     // Loop.
+    while (true) // Game Loop
+    {
+        client.Update();
+
+    }
 }
