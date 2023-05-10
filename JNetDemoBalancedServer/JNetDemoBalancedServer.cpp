@@ -37,5 +37,10 @@ int main(int argc, char* argv[]) // note the starting arguments here
     server.SetMasterServer(address, port);
     server.SetMyConnectionInfo(myName, myAddress, myPort);
     server.ConnectToMasterServer();
-    server.Run();   
+
+    while (true)
+    {
+        server.Update();   
+
+    }
 }

@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <string>
+#include <chrono>
 
 struct _ENetHost;
 struct _ENetPeer;
@@ -41,13 +42,19 @@ namespace JNet
 		unsigned int m_playerCapacity;
 		unsigned int m_sessionCount;
 
+		unsigned int m_MasterServerCheckInSeconds = 5;
+		std::chrono::time_point<std::chrono::system_clock> m_MasterServerLastCheckInTime;
+
 	public:
 		void Initialise();
 		void SetMasterServer(string address, unsigned int port);
 		void SetMyConnectionInfo(string myName, string myAddress, unsigned int myPort);
 		void ConnectToMasterServer();
+		void CheckInWithMasterServer();
 		void OpenForConnections();
-		void Run();
+		void Update();
+		void UpdateMasterServer();
+		void UpdateClients();
 	};
 }
 

@@ -45,7 +45,6 @@ void JNet::MasterServer::Process()
 		{
 		case ENET_EVENT_TYPE_CONNECT:
 		{
-			std::cout << "New Connection!" << std::endl;
 			break;
 		}
 		case ENET_EVENT_TYPE_RECEIVE:
@@ -73,7 +72,6 @@ void JNet::MasterServer::Process()
 
 void JNet::MasterServer::InterpretUserPacket(_ENetEvent& receivedEvent)
 {
-	std::cout << "Processing User Packet" << std::endl;
 	// switch on packet type
 	JNetPacket* packet = (JNetPacket*)receivedEvent.packet->data;
 	switch (packet->type)
@@ -93,8 +91,6 @@ void JNet::MasterServer::InterpretUserPacket(_ENetEvent& receivedEvent)
 		{
 			BalancedServerReference server = m_balancedServers[m_nextServer];
 			std::cout << "Redirect user to " << server.name << std::endl; // should show username here for verbosity.
-
-
 			JNet::MasterServerRedirect redirectTo;
 			strcpy_s(redirectTo.name, server.name.c_str());
 			strcpy_s(redirectTo.hostname, server.address.c_str());
@@ -119,7 +115,6 @@ void JNet::MasterServer::InterpretUserPacket(_ENetEvent& receivedEvent)
 
 void JNet::MasterServer::InterpretBalancedServerPacket(_ENetEvent& receivedEvent)
 {
-	std::cout << "We received a user-defined Balanced Server packet!" << std::endl;
 	JNetPacket* packet = (JNetPacket*)receivedEvent.packet->data;
 	switch (packet->type)
 	{
