@@ -51,7 +51,7 @@ namespace JNet
 	{
 		JNetPacketType type = JNetPacketType::BSGameServerInfo;
 		char name[64];
-		char address[16];
+		char address[64];
 		int port;
 	};
 
