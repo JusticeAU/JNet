@@ -75,6 +75,8 @@ namespace JNet
 		void CheckInWithMasterServer();
 		void UpdateMasterServer();
 		void OpenForConnections();
+
+		void CreateAGameSessionBoi();
 	};
 }
 

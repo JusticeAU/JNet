@@ -4,6 +4,11 @@
 
 #include <iostream>
 
+// Create process code
+#include <windows.h>
+#include <stdio.h>
+#include <tchar.h>
+
 JNet::BalancedServer::BalancedServer()
 {
 }
@@ -74,6 +79,46 @@ void JNet::BalancedServer::OpenForConnections()
     m_ENetGameSessionClient = enet_host_create(&addressGS, 32, 2, 0, 0);
 
     CheckInWithMasterServer();
+    CreateAGameSessionBoi();
+}
+
+void JNet::BalancedServer::CreateAGameSessionBoi()
+{
+    STARTUPINFO si;
+    PROCESS_INFORMATION pi;
+
+
+    ZeroMemory(&si, sizeof(si));
+    si.cb = sizeof(si);
+    ZeroMemory(&pi, sizeof(pi));
+
+    
+
+    char executableName[64] = "JNetDemoGameSession.exe";
+    char args[64] = "127.0.0.1 6051 \"Game Session 2\" 127.0.0.1 6053";
+    // Start the child process. 
+    if (!CreateProcess((LPCWSTR)&executableName,   // No module name (use command line)
+        (LPWSTR)& args,        // Command line
+        NULL,           // Process handle not inheritable
+        NULL,           // Thread handle not inheritable
+        FALSE,          // Set handle inheritance to FALSE
+        0,              // No creation flags
+        NULL,           // Use parent's environment block
+        NULL,           // Use parent's starting directory 
+        &si,            // Pointer to STARTUPINFO structure
+        &pi)           // Pointer to PROCESS_INFORMATION structure
+        )
+    {
+        printf("CreateProcess failed (%d).\n", GetLastError());
+        return;
+    }
+
+    // Wait until child process exits.
+    WaitForSingleObject(pi.hProcess, INFINITE);
+
+    // Close process and thread handles. 
+    //CloseHandle(pi.hProcess);
+    //CloseHandle(pi.hThread);
 }
 
 void JNet::BalancedServer::Update()
