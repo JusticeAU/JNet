@@ -26,11 +26,12 @@ void JNet::BalancedServer::SetMasterServer(string address, unsigned int port)
     m_masterServerPort = port;
 }
 
-void JNet::BalancedServer::SetMyConnectionInfo(string myName, string myAddress, unsigned int myPort)
+void JNet::BalancedServer::SetMyConnectionInfo(string myName, string myAddress, unsigned int myPort, unsigned int myPortGS)
 {
     m_myName = myName;
     m_myAddress = myAddress;
     m_myPort = myPort;
+    m_myPortGS = myPortGS;
 }
 
 void JNet::BalancedServer::ConnectToMasterServer()
@@ -50,6 +51,7 @@ void JNet::BalancedServer::CheckInWithMasterServer()
     JNet::BalancedServerUpdate update;
     update.playerCount = m_playerCount;
     update.playerCapacity = m_ENetBalancedServerClient->peerCount;
+    update.sessionCount = m_sessionCount;
     update.open = true;
     ENetPacket* packet = enet_packet_create(&update, sizeof(JNet::BalancedServerUpdate), ENET_PACKET_FLAG_RELIABLE);
     enet_peer_send(m_ENetMasterServerPeer, 1, packet);
@@ -65,12 +67,19 @@ void JNet::BalancedServer::OpenForConnections()
 
     m_ENetBalancedServerClient = enet_host_create(&address, 32, 2, 0, 0);
 
+    ENetAddress addressGS;
+    addressGS.host = ENET_HOST_ANY;
+    addressGS.port = m_myPortGS;
+
+    m_ENetGameSessionClient = enet_host_create(&addressGS, 32, 2, 0, 0);
+
     CheckInWithMasterServer();
 }
 
 void JNet::BalancedServer::Update()
 {
     UpdateMasterServer();
+    UpdateGameSessions();
     UpdateClients();
 }
 
@@ -123,6 +132,51 @@ void JNet::BalancedServer::UpdateMasterServer()
         CheckInWithMasterServer();
 }
 
+void JNet::BalancedServer::UpdateGameSessions()
+{
+    // communications from connected clients
+    ENetEvent GSreceivedEvent; // the variable to place the info in.
+    while (enet_host_service(m_ENetGameSessionClient, &GSreceivedEvent, 0) > 0)
+    {
+        switch (GSreceivedEvent.type)
+        {
+        case ENET_EVENT_TYPE_CONNECT:
+            std::cout << "We have had a GameSession connect." << std::endl;
+            m_sessionCount++;
+            break;
+        case ENET_EVENT_TYPE_DISCONNECT:
+        {
+            std::cout << "We have had a GameSession disconnect." << std::endl;
+            m_sessionCount--;
+            break;
+        }
+        case ENET_EVENT_TYPE_RECEIVE:
+        {
+            std::cout << "We received a user-defined packet from a GameSession." << std::endl;
+            JNetPacket* packet = (JNetPacket*)GSreceivedEvent.packet->data;
+            switch (packet->type)
+            {
+            case JNetPacketType::GSRegister:
+            {
+                GameSessionRegister* GSRegister = (GameSessionRegister*)GSreceivedEvent.packet->data;
+                ConnectedGameSession gameSession;
+                gameSession.name = GSRegister->name;
+                gameSession.address = GSRegister->hostname;
+                gameSession.port = GSRegister->port;
+                gameSession.peer = GSreceivedEvent.peer;
+                m_connectedGameSessions.push_back(gameSession);
+                std::cout << "New Game Session registered: \"" + gameSession.name + "\"" << std::endl;
+            }
+            }
+            break;
+        }
+        default:
+            std::cout << "We received some other data from a GameSession." << std::endl;
+            break;
+        }
+    }
+}
+
 void JNet::BalancedServer::UpdateClients()
 {
     // communications from connected clients
@@ -134,6 +188,22 @@ void JNet::BalancedServer::UpdateClients()
         case ENET_EVENT_TYPE_CONNECT:
             std::cout << "We have had a Client connect." << std::endl;
             m_playerCount++;
+            if (m_connectedGameSessions.size() > 0)
+            {
+                JNet::BalancedServerGameSessionInfo GSInfo;
+                strcpy_s(GSInfo.name, m_connectedGameSessions[0].name.c_str());
+                strcpy_s(GSInfo.address, m_connectedGameSessions[0].address.c_str());
+                GSInfo.port = m_connectedGameSessions[0].port;
+                ENetPacket* packet = enet_packet_create(&GSInfo, sizeof(JNet::BalancedServerGameSessionInfo), ENET_PACKET_FLAG_RELIABLE);
+                enet_peer_send(BSreceivedEvent.peer, 1, packet);
+            }
+            else
+            {
+                JNet::ErrorMessage Error;
+                strcpy_s(Error.message, "No Game Sessions to connect to");
+                ENetPacket* packet = enet_packet_create(&Error, sizeof(JNet::ErrorMessage), ENET_PACKET_FLAG_RELIABLE);
+                enet_peer_send(BSreceivedEvent.peer, 1, packet);
+            }
             break;
         case ENET_EVENT_TYPE_DISCONNECT:
         {

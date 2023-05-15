@@ -21,40 +21,60 @@ namespace JNet
 		struct ConnectedPeer
 		{
 			_ENetPeer* peer;
-			char name[32];
+			string name;
+		};
+		struct ConnectedGameSession
+		{
+			_ENetPeer* peer;
+			string name;
+			string address;
+			unsigned int port;
 		};
 	private:
-		_ENetHost* m_ENetMasterServerClient;
-		_ENetPeer* m_ENetMasterServerPeer;
-		string m_masterServerAddress;
-		unsigned short m_masterServerPort;
-		bool m_connectedToMasterServer = false;
-		bool m_openForConnections = false;
-
+		// Balanced Server Info
+		_ENetHost* m_ENetBalancedServerClient;
+		
 		string m_myName;
 		string m_myAddress;
 		unsigned short m_myPort;
 
-		_ENetHost* m_ENetBalancedServerClient;
-		vector<ConnectedPeer> m_connectedPeers;
-
 		unsigned int m_playerCount;
 		unsigned int m_playerCapacity;
 		unsigned int m_sessionCount;
+		
+		vector<ConnectedPeer> m_connectedPeers;
 
+		// Master Server Info
+		_ENetHost* m_ENetMasterServerClient;
+		_ENetPeer* m_ENetMasterServerPeer;
+		
+		string m_masterServerAddress;
+		unsigned short m_masterServerPort;
+		
 		unsigned int m_MasterServerCheckInSeconds = 5;
 		std::chrono::time_point<std::chrono::system_clock> m_MasterServerLastCheckInTime;
+		bool m_connectedToMasterServer = false;
+		bool m_openForConnections = false;
+
+		// Connected Game Sessions
+		_ENetHost* m_ENetGameSessionClient;
+		unsigned short m_myPortGS;
+		vector<ConnectedGameSession> m_connectedGameSessions;
 
 	public:
 		void Initialise();
+		void SetMyConnectionInfo(string myName, string myAddress, unsigned int myPort, unsigned int myPortGS);
+		
+		void Update();
+		void UpdateClients();
+
+		void UpdateGameSessions();
+
 		void SetMasterServer(string address, unsigned int port);
-		void SetMyConnectionInfo(string myName, string myAddress, unsigned int myPort);
 		void ConnectToMasterServer();
 		void CheckInWithMasterServer();
-		void OpenForConnections();
-		void Update();
 		void UpdateMasterServer();
-		void UpdateClients();
+		void OpenForConnections();
 	};
 }
 

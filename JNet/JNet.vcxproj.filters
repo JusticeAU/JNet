@@ -14,6 +14,9 @@
     <Filter Include="SharedPackets">
       <UniqueIdentifier>{b78eaba9-a72f-4182-a357-dc4886c4894c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GameSession">
+      <UniqueIdentifier>{9e3bd0c8-4db6-4046-8496-c25d32eedee5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="JNetMasterServer.cpp">
@@ -24,6 +27,9 @@
     </ClCompile>
     <ClCompile Include="JNetClient.cpp">
       <Filter>Client</Filter>
+    </ClCompile>
+    <ClCompile Include="JNetGameSession.cpp">
+      <Filter>GameSession</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -38,6 +44,9 @@
     </ClInclude>
     <ClInclude Include="JNetPackets.h">
       <Filter>SharedPackets</Filter>
+    </ClInclude>
+    <ClInclude Include="JNetGameSession.h">
+      <Filter>GameSession</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -83,9 +83,9 @@ void JNet::MasterServer::InterpretUserPacket(_ENetEvent& receivedEvent)
 
 		if (m_balancedServers.size() == 0)
 		{
-			JNet::MasterServerErrorMessage errorMsg;
+			JNet::ErrorMessage errorMsg;
 			strcpy_s(errorMsg.message, "No Servers available. Please try again later");
-			infoPacket = enet_packet_create(&errorMsg, sizeof(JNet::MasterServerErrorMessage), ENET_PACKET_FLAG_RELIABLE);
+			infoPacket = enet_packet_create(&errorMsg, sizeof(JNet::ErrorMessage), ENET_PACKET_FLAG_RELIABLE);
 		}
 		else
 		{

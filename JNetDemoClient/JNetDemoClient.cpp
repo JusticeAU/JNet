@@ -29,6 +29,5 @@ int main()
     while (true) // Game Loop
     {
         client.Update();
-
     }
 }

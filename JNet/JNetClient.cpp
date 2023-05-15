@@ -45,7 +45,7 @@ void JNet::Client::ConnectToMasterServer()
 }
 
 // Set the address and port that wil lbe used when ConnectToBalanced server is called. Usually called internally when the information is received from the Master Server.
-void JNet::Client::SetBalancedrServer(string address, unsigned int port)
+void JNet::Client::SetBalancedServer(string address, unsigned int port)
 {
     m_balancedServerAddress = address;
     m_balancedServerPort = port;
@@ -71,6 +71,25 @@ void JNet::Client::ConnectToBalancedServer()
         isConnectedBalancedServer = false;
 }
 
+void JNet::Client::ConnectToGameSession()
+{
+    std::cout << "Connecting to Game Session " << m_gameSessionName << std::endl;
+
+    shouldConnectToGameSession = false;
+
+    m_ENetGameSessionClient = enet_host_create(nullptr, 1, 2, 0, 0);
+
+    ENetAddress address;
+    enet_address_set_host(&address, m_gameSessionAddress.c_str());
+    address.port = m_gameSessionPort;
+
+    m_ENetGameSessionPeer = enet_host_connect(m_ENetGameSessionClient, &address, 2, 0);
+    if (m_ENetGameSessionPeer != nullptr)
+        isConnectedGameSession = true;
+    else
+        isConnectedGameSession = false;
+}
+
 // Updates all JNetClient behaviour. Should be called once per frame in your game loop if you are happy with the basic logic here.
 void JNet::Client::Update()
 {
@@ -81,7 +100,10 @@ void JNet::Client::Update()
 
     if(isConnectedBalancedServer)
         UpdateBalancedServer();
-    if(isConectedGameSession)
+    if (shouldConnectToGameSession)
+        ConnectToGameSession();
+
+    if(isConnectedGameSession)
         UpdateGameSession();
 }
 
@@ -116,9 +138,9 @@ void JNet::Client::UpdateMasterServer()
             {
                 // Display received server information
                 JNet::MasterServerRedirect* redirect = (JNet::MasterServerRedirect*)packet;
-                std::cout << redirect->name << std::endl;
+                /*std::cout << redirect->name << std::endl;
                 std::cout << redirect->hostname << std::endl;
-                std::cout << redirect->port << std::endl;
+                std::cout << redirect->port << std::endl;*/
                 m_balancedServerName = redirect->name;
                 m_balancedServerAddress = redirect->hostname;
                 m_balancedServerPort = redirect->port;
@@ -126,10 +148,10 @@ void JNet::Client::UpdateMasterServer()
                 shouldConnectToBalancedServer = true;
                 break;
             }
-            case JNetPacketType::MSError:
+            case JNetPacketType::Error:
             {
                 // Display received server information
-                JNet::MasterServerErrorMessage* error = (JNet::MasterServerErrorMessage*)packet;
+                JNet::ErrorMessage* error = (JNet::ErrorMessage*)packet;
                 std::cout << error->message << std::endl;
                 break;
             }
@@ -178,6 +200,23 @@ void JNet::Client::UpdateBalancedServer()
             JNet::JNetPacket* packet = (JNet::JNetPacket*)receivedEvent.packet->data;
             switch (packet->type)
             {
+            case JNetPacketType::BSGameServerInfo:
+            {
+                JNet::BalancedServerGameSessionInfo* GSInfo = (JNet::BalancedServerGameSessionInfo*)receivedEvent.packet->data;
+                m_gameSessionName = GSInfo->name;
+                m_gameSessionAddress = GSInfo->address;
+                m_gameSessionPort = GSInfo->port;
+                m_gameSessionReceived = true;
+                shouldConnectToGameSession = true;
+                break;
+            }
+            case JNetPacketType::Error:
+            {
+                JNet::ErrorMessage* Error = (JNet::ErrorMessage*)receivedEvent.packet->data;
+                std::cout << "Received Error from Balanced Server" << std::endl;
+                std::cout << Error->message << std::endl;
+                break;
+            }
             default:
                 break;
             }
@@ -185,7 +224,7 @@ void JNet::Client::UpdateBalancedServer()
         }
         case ENET_EVENT_TYPE_DISCONNECT:
         {
-            std::cout << "We have disconnected from the Master Server." << std::endl;
+            std::cout << "We have disconnected from the Balanced Server." << std::endl;
             break;
         }
         default:
@@ -197,4 +236,36 @@ void JNet::Client::UpdateBalancedServer()
 
 void JNet::Client::UpdateGameSession()
 {
+    ENetEvent receivedEvent; // the variable to place the info in.
+    ENetPeer* serverPeer = nullptr;
+
+    // While more information awaits us from the master server...
+    while (enet_host_service(m_ENetGameSessionClient, &receivedEvent, 0 /* non-blocking */) > 0)
+    {
+        // Process
+        switch (receivedEvent.type)
+        {
+        case ENET_EVENT_TYPE_CONNECT:
+            break;
+        case ENET_EVENT_TYPE_RECEIVE:
+        {
+            std::cout << "We received a user-defined packet!" << std::endl;
+            JNet::JNetPacket* packet = (JNet::JNetPacket*)receivedEvent.packet->data;
+            switch (packet->type)
+            {
+            default:
+                break;
+            }
+            break;
+        }
+        case ENET_EVENT_TYPE_DISCONNECT:
+        {
+            std::cout << "We have disconnected from the Game Session." << std::endl;
+            break;
+        }
+        default:
+            std::cout << "some other data received" << std::endl;
+            break;
+        }
+    }
 }

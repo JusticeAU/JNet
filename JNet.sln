@@ -20,6 +20,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "JNetDemoBalancedServer", "J
 		{94C0EB46-F912-425F-BF2B-55F879ECB0F9} = {94C0EB46-F912-425F-BF2B-55F879ECB0F9}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "JNetDemoGameSession", "JNetDemoGameSession\JNetDemoGameSession.vcxproj", "{4428F6C9-CFA0-406D-BB36-E9656F193DA9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{94C0EB46-F912-425F-BF2B-55F879ECB0F9} = {94C0EB46-F912-425F-BF2B-55F879ECB0F9}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -60,6 +65,14 @@ Global
 		{49807DF2-7E2A-4CA1-A244-54F012F99E80}.Release|x64.Build.0 = Release|x64
 		{49807DF2-7E2A-4CA1-A244-54F012F99E80}.Release|x86.ActiveCfg = Release|Win32
 		{49807DF2-7E2A-4CA1-A244-54F012F99E80}.Release|x86.Build.0 = Release|Win32
+		{4428F6C9-CFA0-406D-BB36-E9656F193DA9}.Debug|x64.ActiveCfg = Debug|x64
+		{4428F6C9-CFA0-406D-BB36-E9656F193DA9}.Debug|x64.Build.0 = Debug|x64
+		{4428F6C9-CFA0-406D-BB36-E9656F193DA9}.Debug|x86.ActiveCfg = Debug|Win32
+		{4428F6C9-CFA0-406D-BB36-E9656F193DA9}.Debug|x86.Build.0 = Debug|Win32
+		{4428F6C9-CFA0-406D-BB36-E9656F193DA9}.Release|x64.ActiveCfg = Release|x64
+		{4428F6C9-CFA0-406D-BB36-E9656F193DA9}.Release|x64.Build.0 = Release|x64
+		{4428F6C9-CFA0-406D-BB36-E9656F193DA9}.Release|x86.ActiveCfg = Release|Win32
+		{4428F6C9-CFA0-406D-BB36-E9656F193DA9}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

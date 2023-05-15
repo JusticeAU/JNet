@@ -3,10 +3,13 @@ namespace JNet
 	enum class JNetPacketType
 	{
 		UAuth,
+		URequestForGS,
 		BSRegister,
 		BSUpdate,
+		BSGameServerInfo,
 		MSRedirect,
-		MSError
+		GSRegister,
+		Error
 	};
 
 	// Cast packets to this to see what they are.
@@ -20,6 +23,11 @@ namespace JNet
 		JNetPacketType type = JNetPacketType::UAuth;
 		char username[64];
 		char password[64];
+	};
+
+	struct UserRequestForGameSession
+	{
+		JNetPacketType type = JNetPacketType::URequestForGS;
 	};
 
 	struct BalancedServerRegister
@@ -39,6 +47,14 @@ namespace JNet
 		bool open = false;
 	};
 
+	struct BalancedServerGameSessionInfo
+	{
+		JNetPacketType type = JNetPacketType::BSGameServerInfo;
+		char name[64];
+		char address[16];
+		int port;
+	};
+
 	struct MasterServerRedirect
 	{
 		JNetPacketType type = JNetPacketType::MSRedirect;
@@ -46,9 +62,18 @@ namespace JNet
 		char hostname[64];
 		int port;
 	};
-	struct MasterServerErrorMessage
+
+	struct GameSessionRegister
 	{
-		JNetPacketType type = JNetPacketType::MSError;
+		JNetPacketType type = JNetPacketType::GSRegister;
+		char name[64];
+		char hostname[64];
+		int port;
+	};
+
+	struct ErrorMessage
+	{
+		JNetPacketType type = JNetPacketType::Error;
 		int errorID = 0;
 		char message[256];
 	};
