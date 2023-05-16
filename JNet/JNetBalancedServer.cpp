@@ -99,6 +99,10 @@ void JNet::BalancedServer::UpdateMasterServer()
                 strcpy_s(registerPacket.name, m_myName.c_str());
                 strcpy_s(registerPacket.hostname, m_myAddress.c_str()); // This should actually be from its listen/host instance
                 registerPacket.port = m_myPort;
+                registerPacket.playerCount = m_playerCount;
+                registerPacket.playerCapacity = m_playerCapacity;
+                registerPacket.sessionCount = m_connectedGameSessions.size();
+                registerPacket.open = m_openForConnections;
                 ENetPacket* packet = enet_packet_create(&registerPacket, sizeof(JNet::BalancedServerRegister), ENET_PACKET_FLAG_RELIABLE);
                 enet_peer_send(m_ENetMasterServerPeer, 1, packet);
                 m_connectedToMasterServer = true;

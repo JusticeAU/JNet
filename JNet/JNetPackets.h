@@ -36,6 +36,12 @@ namespace JNet
 		char name[64];
 		char hostname[64];
 		int port;
+
+		// Matches BS Update Data
+		int playerCount = 0;
+		int playerCapacity = 0;
+		int sessionCount = 0;
+		bool open = false;
 	};
 
 	struct BalancedServerUpdate

@@ -1,5 +1,4 @@
 #include "JNetMasterServer.h"
-#include "JNetPackets.h"
 #include "enet/enet.h"
 
 #include <random>
@@ -41,7 +40,7 @@ void JNet::MasterServer::Process()
 	ENetEvent receivedEvent;
 	while (enet_host_service(m_ENetServer, &receivedEvent, 100) > 0)
 	{
-		switch(receivedEvent.type)
+		switch (receivedEvent.type)
 		{
 		case ENET_EVENT_TYPE_CONNECT:
 		{
@@ -70,6 +69,43 @@ void JNet::MasterServer::Process()
 	}
 }
 
+JNet::MasterServerRedirect JNet::MasterServer::GetBalancedServer()
+{
+	int serverIndex = -1;
+
+	switch (m_balanceMode)
+	{
+	case BalanceMode::LeastConnection:
+	{
+		int leastConnections = INT_MAX;
+		for (int i = 0; i < m_balancedServers.size(); i++)
+		{
+			if (m_balancedServers[i].playerCount < leastConnections)
+			{
+				leastConnections = m_balancedServers[i].playerCount;
+				serverIndex = i;
+			}
+		}
+		break;
+	}
+	case BalanceMode::RoundRobin:
+	{
+		m_balanceModeRRnextServer++;
+		if (m_balanceModeRRnextServer >= m_balancedServers.size())
+			m_balanceModeRRnextServer = 0;
+		serverIndex = m_balanceModeRRnextServer;
+		break;
+	}
+	}
+
+	// Build our packet and return it.
+	JNet::MasterServerRedirect redirectTo;
+	strcpy_s(redirectTo.name, m_balancedServers[serverIndex].name.c_str());
+	strcpy_s(redirectTo.hostname, m_balancedServers[serverIndex].address.c_str());
+	redirectTo.port = m_balancedServers[serverIndex].port;
+	return redirectTo;
+}
+
 void JNet::MasterServer::InterpretUserPacket(_ENetEvent& receivedEvent)
 {
 	// switch on packet type
@@ -89,16 +125,10 @@ void JNet::MasterServer::InterpretUserPacket(_ENetEvent& receivedEvent)
 		}
 		else
 		{
-			BalancedServerReference server = m_balancedServers[m_nextServer];
-			std::cout << "Redirect user to " << server.name << std::endl; // should show username here for verbosity.
-			JNet::MasterServerRedirect redirectTo;
-			strcpy_s(redirectTo.name, server.name.c_str());
-			strcpy_s(redirectTo.hostname, server.address.c_str());
-			redirectTo.port = server.port;
+			// Run Balancing function here.
+			JNet::MasterServerRedirect redirectTo = GetBalancedServer();
 			infoPacket = enet_packet_create(&redirectTo, sizeof(JNet::MasterServerRedirect), ENET_PACKET_FLAG_RELIABLE);
-
-			m_nextServer++;
-			if (m_nextServer == m_balancedServers.size()) m_nextServer = 0;
+			std::cout << "Redirect user to " << redirectTo.name << std::endl; // should show username here for verbosity.
 		}
 
 		enet_peer_send(serverPeer, 0, infoPacket);
@@ -125,23 +155,40 @@ void JNet::MasterServer::InterpretBalancedServerPacket(_ENetEvent& receivedEvent
 		std::cout << "Received a register event from a Balanced Server" << std::endl;
 		std::cout << "\tName: " << bsRegister->name << " - Hostname: " << bsRegister->hostname << " - Port: " << bsRegister->port << std::endl;
 		BalancedServerReference server;
+		server.peer = receivedEvent.peer;
 		server.name = bsRegister->name;
 		server.address = bsRegister->hostname;
 		server.port = bsRegister->port;
+		server.playerCount = bsRegister->playerCount;
+		server.playerCapacity = bsRegister->playerCapacity;
+		server.sessionCount = bsRegister->sessionCount;
+		server.open = bsRegister->open;
 		m_balancedServers.push_back(server);
 	}
-		break;
+	break;
 	case JNetPacketType::BSUpdate:
 		// Update this BS
 	{
 		BalancedServerUpdate* bsUpdate = (BalancedServerUpdate*)receivedEvent.packet->data;
-		std::cout << "Received an update event from a Balanced Server" << std::endl;
-		std::cout << "\tPlayer Count: " << bsUpdate->playerCount
-			<< " - Player Capacity: " << bsUpdate->playerCapacity
-			<< " - Session Count: " << bsUpdate->sessionCount
-			<< " - Open for new connections: " << bsUpdate->open << std::endl;
+
+		for (BalancedServerReference& bs : m_balancedServers)
+		{
+			if (bs.peer == receivedEvent.peer)
+			{
+				bs.playerCount = bsUpdate->playerCount;
+				bs.playerCapacity = bsUpdate->playerCapacity;
+				bs.sessionCount = bsUpdate->sessionCount;
+				bs.open = bsUpdate->open;
+				std::cout << "Received an update event from a Balanced Server" << std::endl;
+				std::cout << "\tPlayer Count: " << bsUpdate->playerCount
+					<< " - Player Capacity: " << bsUpdate->playerCapacity
+					<< " - Session Count: " << bsUpdate->sessionCount
+					<< " - Open for new connections: " << bsUpdate->open << std::endl;
+				break;
+			}
+		}
 	}
-		break;
+	break;
 	default:
 		std::cout << "Received an unknown packet type from Balanced Server" << std::endl;
 	}
