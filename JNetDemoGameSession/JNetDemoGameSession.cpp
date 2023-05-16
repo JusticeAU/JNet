@@ -2,6 +2,9 @@
 #include <string>
 #include "JNetGameSession.h"
 
+#include <thread>
+#include <chrono>
+
 int main(int argc, char* argv[]) // note the starting arguments here
 {
     // Balanced server should take the IP address and port arguments provided to it on launch, initialise itself and connect to the master server under this balanced server contexts and 'check in'
@@ -41,5 +44,6 @@ int main(int argc, char* argv[]) // note the starting arguments here
     while (true)
     {
         gs.Process();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 }

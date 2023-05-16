@@ -25,20 +25,11 @@ void JNet::MasterServer::Initialize()
 		std::cout << "Successfully created Server" << std::endl;
 }
 
-void JNet::MasterServer::Run()
-{
-	while (true)
-	{
-		Process();
-		std::this_thread::sleep_for(std::chrono::milliseconds(16));
-	}
-}
-
 void JNet::MasterServer::Process()
 {
 	// handle enet buffered packets
 	ENetEvent receivedEvent;
-	while (enet_host_service(m_ENetServer, &receivedEvent, 100) > 0)
+	while (enet_host_service(m_ENetServer, &receivedEvent, 0) > 0)
 	{
 		switch (receivedEvent.type)
 		{
@@ -126,9 +117,19 @@ void JNet::MasterServer::InterpretUserPacket(_ENetEvent& receivedEvent)
 		else
 		{
 			// Run Balancing function here.
-			JNet::MasterServerRedirect redirectTo = GetBalancedServer();
-			infoPacket = enet_packet_create(&redirectTo, sizeof(JNet::MasterServerRedirect), ENET_PACKET_FLAG_RELIABLE);
-			std::cout << "Redirect user to " << redirectTo.name << std::endl; // should show username here for verbosity.
+			if (m_balanceMode == BalanceMode::LeastResponseTime)
+			{
+				std::cout << "Sending servers to Client to Ping" << std::endl;
+				MakeClientPingAllServersAndConnect(receivedEvent.peer);
+				break;
+			}
+			else
+			{
+
+				JNet::MasterServerRedirect redirectTo = GetBalancedServer();
+				infoPacket = enet_packet_create(&redirectTo, sizeof(JNet::MasterServerRedirect), ENET_PACKET_FLAG_RELIABLE);
+				std::cout << "Redirect user to " << redirectTo.name << std::endl; // should show username here for verbosity.
+			}
 		}
 
 		enet_peer_send(serverPeer, 0, infoPacket);
@@ -192,4 +193,26 @@ void JNet::MasterServer::InterpretBalancedServerPacket(_ENetEvent& receivedEvent
 	default:
 		std::cout << "Received an unknown packet type from Balanced Server" << std::endl;
 	}
+}
+
+void JNet::MasterServer::MakeClientPingAllServersAndConnect(_ENetPeer* peer)
+{
+	// send them the start packet and quantity of servers
+	JNet::MasterServerCheckPingStart pingStart;
+	pingStart.quantity = m_balancedServers.size();
+	ENetPacket* startPacket = enet_packet_create(&pingStart, sizeof(MasterServerCheckPingStart), ENET_PACKET_FLAG_RELIABLE);
+	enet_peer_send(peer, 0, startPacket);
+	
+	// loop through and send each server as a individual packet.
+	for (BalancedServerReference server : m_balancedServers)
+	{
+		JNet::MasterServerCheckPingServer pingServer;
+		strcpy_s(pingServer.name, server.name.c_str());
+		strcpy_s(pingServer.hostname, server.address.c_str());
+		pingServer.port = server.port;
+
+		ENetPacket* serverPacket = enet_packet_create(&pingServer, sizeof(MasterServerCheckPingServer), ENET_PACKET_FLAG_RELIABLE);
+		enet_peer_send(peer, 0, serverPacket);
+	}
+	
 }

@@ -20,7 +20,7 @@ namespace JNet
 		struct BalancedServerReference
 		{
 			string name;
-			string adddress;
+			string address;
 			unsigned short port;
 		};
 
@@ -43,6 +43,22 @@ namespace JNet
 		_ENetHost* m_ENetMasterServerClient;
 		_ENetPeer* m_ENetMasterServerPeer;
 		bool m_shouldCloseMasterServerHost = false;
+
+		// Balanced Server pinging
+		BalancedServerReference* m_balancedServersToPing = nullptr;
+		int m_balancedServersToPingTotal = 0;
+		int m_balancedServersToPingCurrentReceiving = -1;
+		
+		_ENetHost* m_ENetBalancedServerPingClient;
+		_ENetPeer* m_ENetBalancedServerPingPeer;
+		bool pingConnected = false;
+		bool isPingingBalancedServers = false;
+		const int pingsToSend = 30;
+		int pingServerCurrent = 0;
+		int pingsSent = 0;
+		int pingsReceived = 0;
+		int leastResponseTime = INT_MAX;
+		int leastResponseIndex;
 
 		string	m_balancedServerName;
 		string	m_balancedServerAddress;
@@ -79,5 +95,7 @@ namespace JNet
 		void UpdateMasterServer();
 		void UpdateBalancedServer();
 		void UpdateGameSession();
+
+		void ProcessBalancedServerPinging();
 	};
 }

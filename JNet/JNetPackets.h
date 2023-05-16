@@ -8,7 +8,10 @@ namespace JNet
 		BSUpdate,
 		BSGameServerInfo,
 		MSRedirect,
+		MSCheckPingStart,
+		MSCheckPingServer,
 		GSRegister,
+		Ping,
 		Error
 	};
 
@@ -69,12 +72,31 @@ namespace JNet
 		int port;
 	};
 
+	struct MasterServerCheckPingStart
+	{
+		JNetPacketType type = JNetPacketType::MSCheckPingStart;
+		int quantity;
+	};
+
+	struct MasterServerCheckPingServer
+	{
+		JNetPacketType type = JNetPacketType::MSCheckPingServer;
+		char name[64];
+		char hostname[64];
+		int port;
+	};
+
 	struct GameSessionRegister
 	{
 		JNetPacketType type = JNetPacketType::GSRegister;
 		char name[64];
 		char hostname[64];
 		int port;
+	};
+
+	struct Ping
+	{
+		JNetPacketType type = JNetPacketType::Ping;
 	};
 
 	struct ErrorMessage

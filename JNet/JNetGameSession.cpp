@@ -24,7 +24,7 @@ void JNet::GameSession::Process()
 {
 	// Balanced Server Updates
 	ENetEvent BSreceivedEvent;
-	while (enet_host_service(m_ENetBalancedServerClient, &BSreceivedEvent, 100) > 0)
+	while (enet_host_service(m_ENetBalancedServerClient, &BSreceivedEvent, 0) > 0)
 	{
 		switch (BSreceivedEvent.type)
 		{
@@ -51,7 +51,7 @@ void JNet::GameSession::Process()
 
 	// Game Session Host Updates
 	ENetEvent GSreceivedEvent;
-	while (enet_host_service(m_ENetGameSessionClient, &GSreceivedEvent, 100) > 0)
+	while (enet_host_service(m_ENetGameSessionClient, &GSreceivedEvent, 0) > 0)
 	{
 		switch (GSreceivedEvent.type)
 		{

@@ -95,11 +95,16 @@ void JNet::Client::Update()
 {
     if(isConnectedMasterServer)
         UpdateMasterServer();
+
+    if (isPingingBalancedServers)
+        ProcessBalancedServerPinging();
+
     if (shouldConnectToBalancedServer)
         ConnectToBalancedServer();
 
     if(isConnectedBalancedServer)
         UpdateBalancedServer();
+
     if (shouldConnectToGameSession)
         ConnectToGameSession();
 
@@ -130,13 +135,14 @@ void JNet::Client::UpdateMasterServer()
             break;
         case ENET_EVENT_TYPE_RECEIVE:
         {
-            std::cout << "We received a user-defined packet!" << std::endl;
+            //std::cout << "We received a user-defined packet!" << std::endl;
             JNet::JNetPacket* packet = (JNet::JNetPacket*)receivedEvent.packet->data;
             switch (packet->type)
             {
             case JNetPacketType::MSRedirect:
             {
                 // Display received server information
+                std::cout << "Master Server has redirected us to a Balanced Server!" << std::endl;
                 JNet::MasterServerRedirect* redirect = (JNet::MasterServerRedirect*)packet;
                 /*std::cout << redirect->name << std::endl;
                 std::cout << redirect->hostname << std::endl;
@@ -146,6 +152,25 @@ void JNet::Client::UpdateMasterServer()
                 m_balancedServerPort = redirect->port;
                 m_balancedServerReceived = true;
                 shouldConnectToBalancedServer = true;
+                break;
+            }
+            case JNetPacketType::MSCheckPingStart:
+            {
+                JNet::MasterServerCheckPingStart* pingStart = (JNet::MasterServerCheckPingStart*)packet;
+                m_balancedServersToPingTotal = pingStart->quantity;
+                m_balancedServersToPing = new BalancedServerReference[pingStart->quantity];
+                m_balancedServersToPingCurrentReceiving = 0;
+                std::cout << "Master Server has requested we ping balanced servers and connect to the fastest one! Total Servers: " << m_balancedServersToPingTotal << std::endl;
+                break;
+            }
+            case JNetPacketType::MSCheckPingServer:
+            {
+                std::cout << "Master Server has sent us a Balanced Server." << std::endl;
+                JNet::MasterServerCheckPingServer* pingServer = (JNet::MasterServerCheckPingServer*)packet;
+                m_balancedServersToPing[m_balancedServersToPingCurrentReceiving].name = pingServer->name;
+                m_balancedServersToPing[m_balancedServersToPingCurrentReceiving].address = pingServer->hostname;
+                m_balancedServersToPing[m_balancedServersToPingCurrentReceiving].port = pingServer->port;
+                m_balancedServersToPingCurrentReceiving++;
                 break;
             }
             case JNetPacketType::Error:
@@ -179,6 +204,16 @@ void JNet::Client::UpdateMasterServer()
         m_ENetMasterServerClient = nullptr;
         isConnectedMasterServer = false;
     }
+
+    // ping tests go here.
+    if (m_balancedServersToPingCurrentReceiving == m_balancedServersToPingTotal)
+    {
+        m_balancedServersToPingCurrentReceiving = -1;
+        isPingingBalancedServers = true;
+    }
+
+    if (isPingingBalancedServers)
+        ProcessBalancedServerPinging();
 }
 
 void JNet::Client::UpdateBalancedServer()
@@ -268,4 +303,119 @@ void JNet::Client::UpdateGameSession()
             break;
         }
     }
+
+    // Send some bogus packet here for testing.
+    /*JNet::ErrorMessage testError;
+    ENetPacket* packet = enet_packet_create(&testError, sizeof(JNet::ErrorMessage), ENET_PACKET_FLAG_RELIABLE);
+    enet_peer_send(m_ENetGameSessionPeer, 0, packet);
+    std::cout << m_ENetGameSessionPeer->lowestRoundTripTime << std::endl;*/
+}
+
+void JNet::Client::ProcessBalancedServerPinging()
+{
+    if (m_ENetBalancedServerPingClient == nullptr)
+    {
+        std::cout << "Connecting to server to ping" << std::endl;
+        m_ENetBalancedServerPingClient = enet_host_create(nullptr, 1, 2, 0, 0);
+
+        ENetAddress address;
+        enet_address_set_host(&address, m_balancedServersToPing[pingServerCurrent].address.c_str());
+        address.port = m_balancedServersToPing[pingServerCurrent].port;
+
+        m_ENetBalancedServerPingPeer = enet_host_connect(m_ENetBalancedServerPingClient, &address, 2, 0);
+    }
+
+    if (!pingConnected)
+    {
+        ENetEvent receivedEvent;
+        if (enet_host_service(m_ENetBalancedServerPingClient, &receivedEvent, 0) > 0)
+        {
+            if (receivedEvent.type == ENET_EVENT_TYPE_CONNECT)
+            {
+                std::cout << "Connected" << std::endl;
+                pingConnected = true;
+            }
+
+        }
+        else return;
+    }
+
+    if (pingsSent < pingsToSend)
+    {
+        // send a ping
+        //std::cout << "Sending a Ping" << std::endl;
+        pingsSent++;
+        JNet::Ping ping;
+        ENetPacket* pingPacket = enet_packet_create(&ping, sizeof(JNet::Ping), ENET_PACKET_FLAG_RELIABLE);
+        enet_peer_send(m_ENetBalancedServerPingPeer, 0, pingPacket);
+        enet_peer_ping(m_ENetBalancedServerPingPeer);
+    }
+    if (pingsReceived < pingsToSend)
+    {
+        // uhh dunno why i wrote this. check for ping pax?
+        //std::cout << "Checking for Pongs" << std::endl;
+        ENetEvent receivedEvent;
+        while (enet_host_service(m_ENetBalancedServerPingClient, &receivedEvent, 0 /* non-blocking */) > 0)
+        {
+            // Process
+            switch (receivedEvent.type)
+            {
+            case ENET_EVENT_TYPE_CONNECT:
+                break;
+            case ENET_EVENT_TYPE_RECEIVE:
+            {
+                JNet::Ping* packet = (JNet::Ping*)receivedEvent.packet->data;
+                if (packet->type == JNetPacketType::Ping)
+                {
+                    pingsReceived++;
+                    //std::cout << "Pong!" << std::endl;
+                }
+                break;
+            }
+            case ENET_EVENT_TYPE_DISCONNECT:
+            {
+                break;
+            }
+            default:
+                break;
+            }
+        }
+    }
+    else return;
+
+    if (pingsSent == pingsToSend && pingsReceived == pingsToSend)
+    {
+        std::cout << "3 sent, 3 received! Evaluating" << std::endl;
+        // record least response time, check if its radder than previous, close connection, increment test index
+        if (m_ENetBalancedServerPingPeer->lowestRoundTripTime < leastResponseTime)
+        {
+            std::cout << "This is the new fast server!" << std::endl;
+            leastResponseTime = m_ENetBalancedServerPingPeer->lowestRoundTripTime;
+            leastResponseIndex = pingServerCurrent;
+        }
+        else
+            std::cout << "This server is slower" << std::endl;
+
+        pingServerCurrent++;
+        enet_host_destroy(m_ENetBalancedServerPingClient);
+        m_ENetBalancedServerPingClient = nullptr;
+        m_ENetBalancedServerPingPeer = nullptr;
+        pingsSent = 0;
+        pingsReceived = 0;
+
+        pingConnected = false;
+    }
+    else return;
+
+    if (pingServerCurrent >= m_balancedServersToPingTotal)
+    {
+        std::cout << "Connecting to " << m_balancedServersToPing[leastResponseIndex].name << " with lowest ping of: " << leastResponseTime << std::endl;
+        SetBalancedServer(m_balancedServersToPing[leastResponseIndex].address, m_balancedServersToPing[leastResponseIndex].port);
+        shouldConnectToBalancedServer = true;
+        isPingingBalancedServers = false;
+        pingServerCurrent = 0;
+        leastResponseTime = INT_MAX;
+    }
+    else
+        std::cout << "Checking next server" << std::endl;
 }

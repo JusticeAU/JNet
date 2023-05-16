@@ -79,8 +79,10 @@ void JNet::BalancedServer::OpenForConnections()
 void JNet::BalancedServer::Update()
 {
     UpdateMasterServer();
-    UpdateGameSessions();
-    UpdateClients();
+    if(m_ENetGameSessionClient != nullptr)
+        UpdateGameSessions();
+    if(m_ENetBalancedServerClient != nullptr)
+        UpdateClients();
 }
 
 void JNet::BalancedServer::UpdateMasterServer()
@@ -88,7 +90,7 @@ void JNet::BalancedServer::UpdateMasterServer()
     ENetEvent MSreceivedEvent; // the variable to place the info in.
 
     // Communications from Master Server
-    while (enet_host_service(m_ENetMasterServerClient, &MSreceivedEvent, 100) > 0)
+    while (enet_host_service(m_ENetMasterServerClient, &MSreceivedEvent, 0) > 0)
     {
         switch (MSreceivedEvent.type)
         {
@@ -218,6 +220,18 @@ void JNet::BalancedServer::UpdateClients()
         case ENET_EVENT_TYPE_RECEIVE:
         {
             std::cout << "We received a user-defined packet from a Client." << std::endl;
+            JNetPacket* packet = (JNetPacket*)BSreceivedEvent.packet->data;
+            switch (packet->type)
+            {
+            case JNetPacketType::Ping:
+            {
+                // dont bother converting
+
+                ENetPacket* pingPacket = enet_packet_create(packet, sizeof(Ping), ENET_PACKET_FLAG_RELIABLE);
+                enet_peer_send(BSreceivedEvent.peer,0,pingPacket);
+                break;
+            }
+            }
             break;
         }
         default:

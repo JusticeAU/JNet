@@ -2,8 +2,6 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include <thread>
-#include <chrono>
 
 struct _ENetAddress;
 struct _ENetHost;
@@ -34,6 +32,7 @@ namespace JNet
 			string name = "undefined";
 			string address = "undefined";
 			unsigned short port = 0;
+			unsigned short pingPort = 0;
 			
 			// Matches BSUpdate Data
 			int playerCount = 0;
@@ -45,19 +44,21 @@ namespace JNet
 		_ENetAddress* m_address;
 		_ENetHost* m_ENetServer;
 
-		BalanceMode m_balanceMode = BalanceMode::LeastConnection;
+		BalanceMode m_balanceMode = BalanceMode::LeastResponseTime;
 
 		// round robin balance
 		int m_balanceModeRRnextServer = 0;
 		vector<BalancedServerReference> m_balancedServers;
 	public:
 		void Initialize();
-		void Run();
+
 		void Process();
 
 		JNet::MasterServerRedirect GetBalancedServer();
 		
 		void InterpretUserPacket(_ENetEvent& receivedEvent);
 		void InterpretBalancedServerPacket(_ENetEvent& receivedEvent);
+
+		void MakeClientPingAllServersAndConnect(_ENetPeer* peer);
 	};
 }
