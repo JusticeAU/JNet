@@ -92,17 +92,16 @@ void JNet::BalancedServer::CreateAGameSessionBoi()
     si.cb = sizeof(si);
     ZeroMemory(&pi, sizeof(pi));
 
+    LPCWSTR a = L"JNetDemoGameSession.exe";
+    LPWSTR b = const_cast<LPTSTR>(TEXT("127.0.0.1 6051 \"Game Session 2\" 127.0.0.1 6053"));
     
-
-    char executableName[64] = "JNetDemoGameSession.exe";
-    char args[64] = "127.0.0.1 6051 \"Game Session 2\" 127.0.0.1 6053";
     // Start the child process. 
-    if (!CreateProcess((LPCWSTR)&executableName,   // No module name (use command line)
-        (LPWSTR)& args,        // Command line
+    if (!CreateProcess(a,   // No module name (use command line)
+        b,        // Command line
         NULL,           // Process handle not inheritable
         NULL,           // Thread handle not inheritable
         FALSE,          // Set handle inheritance to FALSE
-        0,              // No creation flags
+        CREATE_NEW_CONSOLE,              // No creation flags
         NULL,           // Use parent's environment block
         NULL,           // Use parent's starting directory 
         &si,            // Pointer to STARTUPINFO structure
@@ -114,11 +113,16 @@ void JNet::BalancedServer::CreateAGameSessionBoi()
     }
 
     // Wait until child process exits.
-    WaitForSingleObject(pi.hProcess, INFINITE);
+    //WaitForSingleObject(pi.hProcess, INFINITE);
 
     // Close process and thread handles. 
     //CloseHandle(pi.hProcess);
     //CloseHandle(pi.hThread);
+}
+
+void JNet::BalancedServer::CreateAGameSessionBoiDifferently()
+{
+    system("JNetDemoGameSession.exe 127.0.0.1 6051 \"Game Session 1\" 127.0.0.1 6052");
 }
 
 void JNet::BalancedServer::Update()

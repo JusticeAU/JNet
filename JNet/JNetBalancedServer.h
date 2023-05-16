@@ -77,6 +77,7 @@ namespace JNet
 		void OpenForConnections();
 
 		void CreateAGameSessionBoi();
+		void CreateAGameSessionBoiDifferently();
 	};
 }
 
