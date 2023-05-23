@@ -14,10 +14,8 @@ JNet::GameSession::~GameSession()
 
 void JNet::GameSession::Initialise()
 {
-    if (enet_initialize() == 0)
-        std::cout << "ENet Initialized!" << std::endl;
-    else
-        std::cout << "Failure! ENet failed to initialize" << std::endl;
+    if (enet_initialize() != 0)
+		std::cout << "Enet failed to initialise." << std::endl;
 }
 
 void JNet::GameSession::Process()
@@ -58,17 +56,25 @@ void JNet::GameSession::Process()
 		case ENET_EVENT_TYPE_CONNECT:
 		{
 			std::cout << "A client connected" << std::endl;
+			if (m_ClientConnectCallBack)
+				m_ClientConnectCallBack(&GSreceivedEvent);
 			break;
 		}
 		case ENET_EVENT_TYPE_RECEIVE:
 		{
+			if (m_ClientPacketCallBack)
+				m_ClientPacketCallBack(&GSreceivedEvent);
 			break;
 		}
 		case ENET_EVENT_TYPE_DISCONNECT:
 		{
+			if (m_ClientDisconnectCallBack)
+				m_ClientDisconnectCallBack(&GSreceivedEvent);
 			break;
 		}
 		}
+
+		
 	}
 }
 

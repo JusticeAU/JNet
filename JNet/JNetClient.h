@@ -6,6 +6,7 @@ using std::string;
 
 struct _ENetHost;
 struct _ENetPeer;
+struct _ENetEvent;
 
 namespace JNet
 {
@@ -35,6 +36,9 @@ namespace JNet
 		Client();
 		~Client();
 
+		void (*m_ClientConnectCallBack)(_ENetEvent*) = nullptr;
+		void (*m_ClientPacketCallBack)(_ENetEvent*) = nullptr;
+		void (*m_ClientDisconnectCallBack)(_ENetEvent*) = nullptr;
 
 	private:
 		string	m_masterServerAddress;
@@ -53,7 +57,7 @@ namespace JNet
 		_ENetPeer* m_ENetBalancedServerPingPeer;
 		bool pingConnected = false;
 		bool isPingingBalancedServers = false;
-		const int pingsToSend = 30;
+		const int pingsToSend = 10;
 		int pingServerCurrent = 0;
 		int pingsSent = 0;
 		int pingsReceived = 0;
@@ -74,10 +78,10 @@ namespace JNet
 		int		m_gameSessionPort;
 		bool	m_gameSessionReceived = false;
 		bool	shouldConnectToGameSession = false;
-
+	public:
 		_ENetHost* m_ENetGameSessionClient;
 		_ENetPeer* m_ENetGameSessionPeer;
-
+	protected:
 		bool isConnectedMasterServer = false;
 		bool isConnectedBalancedServer = false;
 		bool isConnectedGameSession = false;
@@ -86,7 +90,7 @@ namespace JNet
 		void Initialise();
 		void SetMasterServer(string address, unsigned int port);
 		void ConnectToMasterServer();
-		void SetBalancedServer(string address, unsigned int port);
+		void SetBalancedServer(string address, unsigned int port, string name);
 		void ConnectToBalancedServer();
 		void ConnectToGameSession();
 
@@ -97,5 +101,13 @@ namespace JNet
 		void UpdateGameSession();
 
 		void ProcessBalancedServerPinging();
+
+	public:
+		bool IsConnectedMasterServer() { return isConnectedMasterServer; }
+		bool IsConnectedBalancedServer() { return isConnectedBalancedServer; }
+		bool IsConnectedGameSession() { return isConnectedGameSession; }
+
+		string GetBalancedServerName() { return m_balancedServerName; };
+		string GetGameSessionName() { return m_gameSessionName; };
 	};
 }

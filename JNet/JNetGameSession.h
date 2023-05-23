@@ -3,6 +3,7 @@
 
 struct _ENetHost;
 struct _ENetPeer;
+struct _ENetEvent;
 
 using std::string;
 
@@ -19,9 +20,14 @@ namespace JNet
 		_ENetPeer* m_ENetBalancedServerPeer;
 		string m_balancedServerAddress;
 		unsigned short m_balancedServerPort;
-
+	
+	public:
 		_ENetHost* m_ENetGameSessionClient;
+		void (*m_ClientConnectCallBack)(_ENetEvent*) = nullptr;
+		void (*m_ClientPacketCallBack)(_ENetEvent*) = nullptr;
+		void (*m_ClientDisconnectCallBack)(_ENetEvent*) = nullptr;
 
+	private:
 		string m_myName;
 		string m_myAddress;
 		unsigned short m_myPort;

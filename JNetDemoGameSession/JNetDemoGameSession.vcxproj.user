@@ -9,11 +9,11 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>127.0.0.1 6051 "Untitled Game Session" 127.0.0.1 6052</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>127.0.0.1 6051 "Game Session 1" 127.0.0.1 6052</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LocalDebuggerCommandArguments>127.0.0.1 6051 "Untitled Game Session" 127.0.0.1 6052</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>127.0.0.1 6051 "Game Session 1" 127.0.0.1 6052</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>

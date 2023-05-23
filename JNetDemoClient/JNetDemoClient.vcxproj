@@ -110,13 +110,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)JNet;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\JNet\enet\include;$(ProjectDir)DemoInclude\imgui;$(ProjectDir)DemoInclude\glad;$(ProjectDir)DemoInclude\GLFW;$(SolutionDir)JNet;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>enet64.lib;ws2_32.lib;winmm.lib;JNet.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)$(PlatformTarget)\$(Configuration);$(SolutionDir)JNet\enet;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;enet64.lib;ws2_32.lib;winmm.lib;JNet.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)DemoInclude\GLFW;$(SolutionDir)$(PlatformTarget)\$(Configuration);$(SolutionDir)JNet\enet;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -127,19 +127,43 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)JNet;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\JNet\enet\include;$(ProjectDir)DemoInclude\imgui;$(ProjectDir)DemoInclude\glad;$(ProjectDir)DemoInclude\GLFW;$(SolutionDir)JNet;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>enet64.lib;ws2_32.lib;winmm.lib;JNet.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)$(PlatformTarget)\$(Configuration);$(SolutionDir)JNet\enet;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;enet64.lib;ws2_32.lib;winmm.lib;JNet.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)DemoInclude\GLFW;$(SolutionDir)$(PlatformTarget)\$(Configuration);$(SolutionDir)JNet\enet;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DemoInclude\imgui\imgui.cpp" />
+    <ClCompile Include="DemoInclude\imgui\imgui_demo.cpp" />
+    <ClCompile Include="DemoInclude\imgui\imgui_draw.cpp" />
+    <ClCompile Include="DemoInclude\imgui\imgui_impl_glfw.cpp" />
+    <ClCompile Include="DemoInclude\imgui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="DemoInclude\imgui\imgui_stdlib.cpp" />
+    <ClCompile Include="DemoInclude\imgui\imgui_tables.cpp" />
+    <ClCompile Include="DemoInclude\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="glad.c" />
     <ClCompile Include="JNetDemoClient.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="DemoInclude\imgui\dirent.h" />
+    <ClInclude Include="DemoInclude\imgui\imconfig.h" />
+    <ClInclude Include="DemoInclude\imgui\imgui.h" />
+    <ClInclude Include="DemoInclude\imgui\imgui_impl_glfw.h" />
+    <ClInclude Include="DemoInclude\imgui\imgui_impl_opengl3.h" />
+    <ClInclude Include="DemoInclude\imgui\imgui_impl_opengl3_loader.h" />
+    <ClInclude Include="DemoInclude\imgui\imgui_internal.h" />
+    <ClInclude Include="DemoInclude\imgui\imgui_stdlib.h" />
+    <ClInclude Include="DemoInclude\imgui\imstb_rectpack.h" />
+    <ClInclude Include="DemoInclude\imgui\imstb_textedit.h" />
+    <ClInclude Include="DemoInclude\imgui\imstb_truetype.h" />
+    <ClInclude Include="glad.h" />
+    <ClInclude Include="khrplatform.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

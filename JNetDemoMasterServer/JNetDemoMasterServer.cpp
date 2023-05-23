@@ -9,6 +9,7 @@ int main()
 {
     MasterServer m_masterServer;
     m_masterServer.Initialize();
+    // TODO Set mode from here.
     while (true)
     {
         m_masterServer.Process();

@@ -14,10 +14,8 @@ JNet::BalancedServer::~BalancedServer()
 
 void JNet::BalancedServer::Initialise()
 {
-    if (enet_initialize() == 0)
-        std::cout << "ENet Initialized!" << std::endl;
-    else
-        std::cout << "Failure! ENet failed to initialize" << std::endl;
+    if (enet_initialize() != 0)
+        std::cout << "Enet failed to initialise." << std::endl;
 }
 
 void JNet::BalancedServer::SetMasterServer(string address, unsigned int port)

@@ -44,7 +44,7 @@ namespace JNet
 		_ENetAddress* m_address;
 		_ENetHost* m_ENetServer;
 
-		BalanceMode m_balanceMode = BalanceMode::LeastResponseTime;
+		BalanceMode m_balanceMode = BalanceMode::LeastConnection;
 
 		// round robin balance
 		int m_balanceModeRRnextServer = 0;

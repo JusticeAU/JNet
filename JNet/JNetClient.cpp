@@ -15,10 +15,8 @@ JNet::Client::~Client()
 // Initialise ENet back end.
 void JNet::Client::Initialise()
 {
-    if (enet_initialize() == 0)
-        std::cout << "ENet Initialized!" << std::endl;
-    else
-        std::cout << "Failure! ENet failed to initialize" << std::endl;
+    if (enet_initialize() != 0)
+        std::cout << "Enet failed to initialise." << std::endl;
 }
 
 // Set the address and port that will be used when ConnectToMasterServer is called.
@@ -45,10 +43,11 @@ void JNet::Client::ConnectToMasterServer()
 }
 
 // Set the address and port that wil lbe used when ConnectToBalanced server is called. Usually called internally when the information is received from the Master Server.
-void JNet::Client::SetBalancedServer(string address, unsigned int port)
+void JNet::Client::SetBalancedServer(string address, unsigned int port, string name)
 {
     m_balancedServerAddress = address;
     m_balancedServerPort = port;
+    m_balancedServerName = name;
 }
 
 // Attempts to connect to the Balanced Server using the Address and Port set with SetMasterServer
@@ -127,6 +126,7 @@ void JNet::Client::UpdateMasterServer()
             std::cout << "We have confirmed connection with the server. Sending Auth" << std::endl;
             {
                 JNet::UserAuth auth;
+                // TODO something with Auth here. get rid of it? implement it in client??
                 strcpy_s(auth.username, "justin");
                 strcpy_s(auth.password, "some super password");
                 ENetPacket* packet = enet_packet_create(&auth, sizeof(JNet::UserAuth), ENET_PACKET_FLAG_RELIABLE);
@@ -144,12 +144,7 @@ void JNet::Client::UpdateMasterServer()
                 // Display received server information
                 std::cout << "Master Server has redirected us to a Balanced Server!" << std::endl;
                 JNet::MasterServerRedirect* redirect = (JNet::MasterServerRedirect*)packet;
-                /*std::cout << redirect->name << std::endl;
-                std::cout << redirect->hostname << std::endl;
-                std::cout << redirect->port << std::endl;*/
-                m_balancedServerName = redirect->name;
-                m_balancedServerAddress = redirect->hostname;
-                m_balancedServerPort = redirect->port;
+                SetBalancedServer(redirect->hostname, redirect->port, redirect->name);
                 m_balancedServerReceived = true;
                 shouldConnectToBalancedServer = true;
                 break;
@@ -231,7 +226,6 @@ void JNet::Client::UpdateBalancedServer()
             break;
         case ENET_EVENT_TYPE_RECEIVE:
         {
-            std::cout << "We received a user-defined packet!" << std::endl;
             JNet::JNetPacket* packet = (JNet::JNetPacket*)receivedEvent.packet->data;
             switch (packet->type)
             {
@@ -281,22 +275,28 @@ void JNet::Client::UpdateGameSession()
         switch (receivedEvent.type)
         {
         case ENET_EVENT_TYPE_CONNECT:
+
+            if (m_ClientConnectCallBack)
+                m_ClientConnectCallBack(&receivedEvent);
             break;
         case ENET_EVENT_TYPE_RECEIVE:
         {
-            std::cout << "We received a user-defined packet!" << std::endl;
             JNet::JNetPacket* packet = (JNet::JNetPacket*)receivedEvent.packet->data;
             switch (packet->type)
             {
             default:
                 break;
             }
+            if (m_ClientPacketCallBack)
+                m_ClientPacketCallBack(&receivedEvent);
             break;
         }
         case ENET_EVENT_TYPE_DISCONNECT:
         {
             std::cout << "We have disconnected from the Game Session." << std::endl;
             break;
+            if (m_ClientDisconnectCallBack)
+                m_ClientDisconnectCallBack(&receivedEvent);
         }
         default:
             std::cout << "some other data received" << std::endl;
@@ -348,7 +348,7 @@ void JNet::Client::ProcessBalancedServerPinging()
         JNet::Ping ping;
         ENetPacket* pingPacket = enet_packet_create(&ping, sizeof(JNet::Ping), ENET_PACKET_FLAG_RELIABLE);
         enet_peer_send(m_ENetBalancedServerPingPeer, 0, pingPacket);
-        enet_peer_ping(m_ENetBalancedServerPingPeer);
+        //enet_peer_ping(m_ENetBalancedServerPingPeer);
     }
     if (pingsReceived < pingsToSend)
     {
@@ -385,7 +385,7 @@ void JNet::Client::ProcessBalancedServerPinging()
 
     if (pingsSent == pingsToSend && pingsReceived == pingsToSend)
     {
-        std::cout << "3 sent, 3 received! Evaluating" << std::endl;
+        std::cout << "All sent pings confirmed received! Evaluating" << std::endl;
         // record least response time, check if its radder than previous, close connection, increment test index
         if (m_ENetBalancedServerPingPeer->lowestRoundTripTime < leastResponseTime)
         {
@@ -410,7 +410,7 @@ void JNet::Client::ProcessBalancedServerPinging()
     if (pingServerCurrent >= m_balancedServersToPingTotal)
     {
         std::cout << "Connecting to " << m_balancedServersToPing[leastResponseIndex].name << " with lowest ping of: " << leastResponseTime << std::endl;
-        SetBalancedServer(m_balancedServersToPing[leastResponseIndex].address, m_balancedServersToPing[leastResponseIndex].port);
+        SetBalancedServer(m_balancedServersToPing[leastResponseIndex].address, m_balancedServersToPing[leastResponseIndex].port, m_balancedServersToPing[leastResponseIndex].name);
         shouldConnectToBalancedServer = true;
         isPingingBalancedServers = false;
         pingServerCurrent = 0;

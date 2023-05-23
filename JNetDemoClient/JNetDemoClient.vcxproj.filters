@@ -13,10 +13,87 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="DemoInclude">
+      <UniqueIdentifier>{8b64ef75-8d14-4d53-91f9-4565243401fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DemoInclude\glad">
+      <UniqueIdentifier>{fb4ed156-382a-4c51-a14c-dce5f6e79259}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DemoInclude\imgui">
+      <UniqueIdentifier>{1c16b8a5-fe19-4446-ac45-256804486554}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="JNetDemoClient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="glad.c">
+      <Filter>DemoInclude\glad</Filter>
+    </ClCompile>
+    <ClCompile Include="DemoInclude\imgui\imgui.cpp">
+      <Filter>DemoInclude\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="DemoInclude\imgui\imgui_demo.cpp">
+      <Filter>DemoInclude\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="DemoInclude\imgui\imgui_draw.cpp">
+      <Filter>DemoInclude\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="DemoInclude\imgui\imgui_impl_glfw.cpp">
+      <Filter>DemoInclude\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="DemoInclude\imgui\imgui_impl_opengl3.cpp">
+      <Filter>DemoInclude\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="DemoInclude\imgui\imgui_tables.cpp">
+      <Filter>DemoInclude\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="DemoInclude\imgui\imgui_widgets.cpp">
+      <Filter>DemoInclude\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="DemoInclude\imgui\imgui_stdlib.cpp">
+      <Filter>DemoInclude\imgui</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="glad.h">
+      <Filter>DemoInclude\glad</Filter>
+    </ClInclude>
+    <ClInclude Include="khrplatform.h">
+      <Filter>DemoInclude\glad</Filter>
+    </ClInclude>
+    <ClInclude Include="DemoInclude\imgui\dirent.h">
+      <Filter>DemoInclude\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="DemoInclude\imgui\imconfig.h">
+      <Filter>DemoInclude\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="DemoInclude\imgui\imgui.h">
+      <Filter>DemoInclude\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="DemoInclude\imgui\imgui_impl_glfw.h">
+      <Filter>DemoInclude\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="DemoInclude\imgui\imgui_impl_opengl3.h">
+      <Filter>DemoInclude\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="DemoInclude\imgui\imgui_impl_opengl3_loader.h">
+      <Filter>DemoInclude\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="DemoInclude\imgui\imgui_internal.h">
+      <Filter>DemoInclude\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="DemoInclude\imgui\imstb_rectpack.h">
+      <Filter>DemoInclude\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="DemoInclude\imgui\imstb_textedit.h">
+      <Filter>DemoInclude\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="DemoInclude\imgui\imstb_truetype.h">
+      <Filter>DemoInclude\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="DemoInclude\imgui\imgui_stdlib.h">
+      <Filter>DemoInclude\imgui</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

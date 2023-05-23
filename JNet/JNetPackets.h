@@ -1,6 +1,6 @@
 namespace JNet
 {
-	enum class JNetPacketType
+	enum class JNetPacketType // enums 0-49 are reserved for JNet. Start your custom types from 50.
 	{
 		UAuth,
 		URequestForGS,
