@@ -5,9 +5,13 @@
 
 JNet::MasterServer::MasterServer()
 {
-	m_address = new ENetAddress();
-	m_address->host = ENET_HOST_ANY;
-	m_address->port = 6000;
+	m_ENetClientAddress = new ENetAddress();
+	m_ENetClientAddress->host = ENET_HOST_ANY;
+	m_ENetClientAddress->port = 6000;
+
+	m_ENetBSAddress = new ENetAddress();
+	m_ENetBSAddress->host = ENET_HOST_ANY;
+	m_ENetBSAddress->port = 6001;
 }
 
 JNet::MasterServer::~MasterServer()
@@ -19,79 +23,74 @@ void JNet::MasterServer::Initialize()
 	if (enet_initialize() != 0)
 		std::cout << "Enet failed to initialise." << std::endl;
 
-	m_ENetServer = enet_host_create(m_address, 32, 2, 0, 0);
+	m_ENetClientHost = enet_host_create(m_ENetClientAddress, 32, 2, 0, 0);
+	m_ENetBSHost = enet_host_create(m_ENetBSAddress, 32, 2, 0, 0);
 
-	if (m_ENetServer != nullptr)
+	if (m_ENetClientHost != nullptr)
 		std::cout << "Successfully created Server" << std::endl;
 }
 
 void JNet::MasterServer::Process()
 {
-	// handle enet buffered packets
+	// handle Client Connections
 	ENetEvent receivedEvent;
-	while (enet_host_service(m_ENetServer, &receivedEvent, 0) > 0)
+	while (enet_host_service(m_ENetClientHost, &receivedEvent, 0) > 0)
 	{
 		switch (receivedEvent.type)
 		{
 		case ENET_EVENT_TYPE_CONNECT:
 		{
-			switch (receivedEvent.channelID)
-			{
-			case 0:
-			{
-				if (m_ClientConnectCallBack) m_ClientConnectCallBack(&receivedEvent);
-				break;
-			}
-			case 1:
-			{
-				if (m_BalancedServerConnectCallBack) m_BalancedServerConnectCallBack(&receivedEvent);
-				break;
-			}
+			if (m_ClientConnectCallBack) m_ClientConnectCallBack(&receivedEvent);
+	
 			break;
-			}
+		}
 		case ENET_EVENT_TYPE_RECEIVE:
 		{
-			switch (receivedEvent.channelID)
-			{
-			case 0:
-			{
-				InterpretUserPacket(receivedEvent);
+			InterpretUserPacket(receivedEvent);
 
-				if (m_ClientPacketCallBack) m_ClientPacketCallBack(&receivedEvent);
-				break;
-			}
-			case 1:
-			{
-				InterpretBalancedServerPacket(receivedEvent);
-
-				if (m_BalancedServerPacketCallBack) m_BalancedServerPacketCallBack(&receivedEvent);
-				break;
-			}
-			default:
-				break;
-			}
-
+			if (m_ClientPacketCallBack) m_ClientPacketCallBack(&receivedEvent);
 			break;
 		}
 		case ENET_EVENT_TYPE_DISCONNECT:
 		{
-			switch (receivedEvent.channelID)
-			{
-			case 0:
-			{
-				if (m_ClientDisconnectCallBack) m_ClientDisconnectCallBack(&receivedEvent);
-				break;
-			}
-			case 1:
-			{
-				if (m_BalancedServerDisconnectCallBack) m_BalancedServerDisconnectCallBack(&receivedEvent);
-				break;
-			}
-			default:
-				break;
-			}
+			if (m_ClientDisconnectCallBack) m_ClientDisconnectCallBack(&receivedEvent);
 			break;
 		}
+		default:
+			break;
+		}
+	}
+
+	// Handle Balanced Server Connections
+	while (enet_host_service(m_ENetBSHost, &receivedEvent, 0) > 0)
+	{
+		switch (receivedEvent.type)
+		{
+		case ENET_EVENT_TYPE_CONNECT:
+		{
+			if (m_BalancedServerConnectCallBack) m_BalancedServerConnectCallBack(&receivedEvent);
+			break;
+		}
+		case ENET_EVENT_TYPE_RECEIVE:
+		{
+			InterpretBalancedServerPacket(receivedEvent);
+			break;
+		}
+		case ENET_EVENT_TYPE_DISCONNECT:
+		{
+
+			for (int i = 0; i < m_balancedServers.size(); i++)
+			{
+				if (m_balancedServers[i].peer == receivedEvent.peer)
+				{
+					m_balancedServers.erase(m_balancedServers.begin() + i);
+					break;
+				}
+			}
+
+			if (m_BalancedServerDisconnectCallBack) m_BalancedServerDisconnectCallBack(&receivedEvent);
+
+			break;
 		}
 		default:
 			break;

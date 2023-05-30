@@ -41,8 +41,11 @@ namespace JNet
 			bool open = false;
 		};
 	private:
-		_ENetAddress* m_address;
-		_ENetHost* m_ENetServer;
+		_ENetAddress* m_ENetClientAddress;
+		_ENetHost* m_ENetClientHost;
+		_ENetAddress* m_ENetBSAddress;
+		_ENetHost* m_ENetBSHost;
+
 
 		BalanceMode m_balanceMode = BalanceMode::LeastConnection;
 

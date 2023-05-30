@@ -16,13 +16,13 @@ namespace JNet
 		~GameSession();
 
 	private:
-		_ENetHost* m_ENetBalancedServerClient;
-		_ENetPeer* m_ENetBalancedServerPeer;
+		_ENetHost* m_ENetBalancedServerClient = nullptr;
+		_ENetPeer* m_ENetBalancedServerPeer = nullptr;
 		string m_balancedServerAddress;
 		unsigned short m_balancedServerPort;
 	
 	public:
-		_ENetHost* m_ENetGameSessionClient;
+		_ENetHost* m_ENetGameSessionClient = nullptr;
 		void (*m_ClientConnectCallBack)(_ENetEvent*) = nullptr;
 		void (*m_ClientPacketCallBack)(_ENetEvent*) = nullptr;
 		void (*m_ClientDisconnectCallBack)(_ENetEvent*) = nullptr;
