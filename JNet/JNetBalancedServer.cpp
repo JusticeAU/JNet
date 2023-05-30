@@ -195,6 +195,15 @@ void JNet::BalancedServer::UpdateGameSessions()
         {
             std::cout << "We have had a GameSession disconnect." << std::endl;
             m_sessionCount--;
+            for (int i = 0; i < m_connectedGameSessions.size(); i++)
+            {
+                if (m_connectedGameSessions[i].peer == GSreceivedEvent.peer)
+                {
+                    m_connectedGameSessions.erase(m_connectedGameSessions.begin() + i);
+                    break;
+                }
+            }
+
 
             if (m_GameSessionDisconnectCallBack)
                 m_GameSessionDisconnectCallBack(&GSreceivedEvent);
