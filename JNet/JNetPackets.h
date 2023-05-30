@@ -24,8 +24,8 @@ namespace JNet
 	struct UserAuth
 	{
 		JNetPacketType type = JNetPacketType::UAuth;
-		char username[64];
-		char password[64];
+		char username[64] = "";
+		char password[64] = "";;
 	};
 
 	struct UserRequestForGameSession
@@ -36,9 +36,9 @@ namespace JNet
 	struct BalancedServerRegister
 	{
 		JNetPacketType type = JNetPacketType::BSRegister;
-		char name[64];
-		char hostname[64];
-		int port;
+		char name[64] = "";;
+		char hostname[64] = "";;
+		int port = 0;
 
 		// Matches BS Update Data
 		int playerCount = 0;
@@ -59,39 +59,39 @@ namespace JNet
 	struct BalancedServerGameSessionInfo
 	{
 		JNetPacketType type = JNetPacketType::BSGameServerInfo;
-		char name[64];
-		char address[64];
-		int port;
+		char name[64] = "";;
+		char address[64] = "";;
+		int port = 0;
 	};
 
 	struct MasterServerRedirect
 	{
 		JNetPacketType type = JNetPacketType::MSRedirect;
-		char name[64];
-		char hostname[64];
-		int port;
+		char name[64] = "";;
+		char hostname[64] = "";;
+		int port = 0;
 	};
 
 	struct MasterServerCheckPingStart
 	{
 		JNetPacketType type = JNetPacketType::MSCheckPingStart;
-		int quantity;
+		int quantity = 0;
 	};
 
 	struct MasterServerCheckPingServer
 	{
 		JNetPacketType type = JNetPacketType::MSCheckPingServer;
-		char name[64];
-		char hostname[64];
-		int port;
+		char name[64] = "";
+		char hostname[64] = "";
+		int port = 0;
 	};
 
 	struct GameSessionRegister
 	{
 		JNetPacketType type = JNetPacketType::GSRegister;
-		char name[64];
-		char hostname[64];
-		int port;
+		char name[64] = "";
+		char hostname[64] = "";
+		int port = 0;
 	};
 
 	struct Ping
@@ -103,6 +103,6 @@ namespace JNet
 	{
 		JNetPacketType type = JNetPacketType::Error;
 		int errorID = 0;
-		char message[256];
+		char message[256] = "";;
 	};
 }

@@ -21,36 +21,36 @@ namespace JNet
 
 		struct ConnectedPeer
 		{
-			_ENetPeer* peer;
-			string name;
+			_ENetPeer* peer = nullptr;
+			string name = "";
 		};
 		struct ConnectedGameSession
 		{
-			_ENetPeer* peer;
-			string name;
-			string address;
-			unsigned int port;
+			_ENetPeer* peer = nullptr;
+			string name = "";
+			string address = "";
+			unsigned int port = 0;
 		};
 	private:
 		// Balanced Server Info
-		_ENetHost* m_ENetBalancedServerClient;
+		_ENetHost* m_ENetBalancedServerClient = nullptr;
 		
-		string m_myName;
-		string m_myAddress;
-		unsigned short m_myPort;
+		string m_myName = "";
+		string m_myAddress = "";
+		unsigned short m_myPort = 0;
 
-		unsigned int m_playerCount;
-		unsigned int m_playerCapacity;
-		unsigned int m_sessionCount;
+		unsigned int m_playerCount = 0;
+		unsigned int m_playerCapacity = 0;
+		unsigned int m_sessionCount = 0;
 		
 		vector<ConnectedPeer> m_connectedPeers;
 
 		// Master Server Info
-		_ENetHost* m_ENetMasterServerClient;
-		_ENetPeer* m_ENetMasterServerPeer;
+		_ENetHost* m_ENetMasterServerClient = nullptr;
+		_ENetPeer* m_ENetMasterServerPeer = nullptr;
 		
-		string m_masterServerAddress;
-		unsigned short m_masterServerPort;
+		string m_masterServerAddress = "";
+		unsigned short m_masterServerPort = 0;
 		
 		unsigned int m_MasterServerCheckInSeconds = 5;
 		std::chrono::time_point<std::chrono::system_clock> m_MasterServerLastCheckInTime;
@@ -58,8 +58,8 @@ namespace JNet
 		bool m_openForConnections = false;
 
 		// Connected Game Sessions
-		_ENetHost* m_ENetGameSessionClient;
-		unsigned short m_myPortGS;
+		_ENetHost* m_ENetGameSessionClient = nullptr;
+		unsigned short m_myPortGS = 0;
 		vector<ConnectedGameSession> m_connectedGameSessions;
 
 	public:

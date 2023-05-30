@@ -14,22 +14,22 @@ namespace JNet
 	{
 		struct MasterServerReference
 		{
-			string address;
-			unsigned short port;
+			string address = "";
+			unsigned short port = 0;
 		};
 
 		struct BalancedServerReference
 		{
-			string name;
-			string address;
-			unsigned short port;
+			string name = "";
+			string address = "";
+			unsigned short port = 0;
 		};
 
 		struct GameSessionReference
 		{
-			string name;
-			string address;
-			unsigned short port;
+			string name = "";
+			string address = "";
+			unsigned short port = 0;
 		};
 
 	public:
@@ -49,11 +49,11 @@ namespace JNet
 		void (*m_ClientDisconnectCallBack)(_ENetEvent*) = nullptr;
 
 	private:
-		string	m_masterServerAddress;
-		int		m_masterServerPort;
+		string	m_masterServerAddress = "";
+		int		m_masterServerPort = 0;
 
-		_ENetHost* m_ENetMasterServerClient;
-		_ENetPeer* m_ENetMasterServerPeer;
+		_ENetHost* m_ENetMasterServerClient = nullptr;
+		_ENetPeer* m_ENetMasterServerPeer = nullptr;;
 		bool m_shouldCloseMasterServerHost = false;
 
 		// Balanced Server pinging
@@ -61,8 +61,8 @@ namespace JNet
 		int m_balancedServersToPingTotal = 0;
 		int m_balancedServersToPingCurrentReceiving = -1;
 		
-		_ENetHost* m_ENetBalancedServerPingClient;
-		_ENetPeer* m_ENetBalancedServerPingPeer;
+		_ENetHost* m_ENetBalancedServerPingClient = nullptr;
+		_ENetPeer* m_ENetBalancedServerPingPeer = nullptr;
 		bool pingConnected = false;
 		bool isPingingBalancedServers = false;
 		const int pingsToSend = 10;
@@ -70,25 +70,25 @@ namespace JNet
 		int pingsSent = 0;
 		int pingsReceived = 0;
 		int leastResponseTime = INT_MAX;
-		int leastResponseIndex;
+		int leastResponseIndex = 0;
 
-		string	m_balancedServerName;
-		string	m_balancedServerAddress;
-		int		m_balancedServerPort;
+		string	m_balancedServerName = "";
+		string	m_balancedServerAddress = "";
+		int		m_balancedServerPort = 0;
 		bool	m_balancedServerReceived = false;
 		bool	shouldConnectToBalancedServer = false;
 
-		_ENetHost* m_ENetBalancedServerClient;
-		_ENetPeer* m_ENetBalancedServerPeer;
+		_ENetHost* m_ENetBalancedServerClient = nullptr;
+		_ENetPeer* m_ENetBalancedServerPeer = nullptr;
 
-		string	m_gameSessionName;
-		string	m_gameSessionAddress;
-		int		m_gameSessionPort;
+		string	m_gameSessionName = "";
+		string	m_gameSessionAddress = "";
+		int		m_gameSessionPort = 0;
 		bool	m_gameSessionReceived = false;
 		bool	shouldConnectToGameSession = false;
 	public:
-		_ENetHost* m_ENetGameSessionClient;
-		_ENetPeer* m_ENetGameSessionPeer;
+		_ENetHost* m_ENetGameSessionClient = nullptr;
+		_ENetPeer* m_ENetGameSessionPeer = nullptr;
 	protected:
 		bool isConnectedMasterServer = false;
 		bool isConnectedBalancedServer = false;

@@ -237,7 +237,7 @@ void JNet::MasterServer::MakeClientPingAllServersAndConnect(_ENetPeer* peer)
 {
 	// send them the start packet and quantity of servers
 	JNet::MasterServerCheckPingStart pingStart;
-	pingStart.quantity = m_balancedServers.size();
+	pingStart.quantity = (int)m_balancedServers.size();
 	ENetPacket* startPacket = enet_packet_create(&pingStart, sizeof(MasterServerCheckPingStart), ENET_PACKET_FLAG_RELIABLE);
 	enet_peer_send(peer, 0, startPacket);
 	

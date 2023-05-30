@@ -303,12 +303,6 @@ void JNet::Client::UpdateGameSession()
             break;
         case ENET_EVENT_TYPE_RECEIVE:
         {
-            JNet::JNetPacket* packet = (JNet::JNetPacket*)receivedEvent.packet->data;
-            switch (packet->type)
-            {
-            default:
-                break;
-            }
 
             if (m_ClientPacketCallBack)
                 m_ClientPacketCallBack(&receivedEvent);
@@ -405,7 +399,7 @@ void JNet::Client::ProcessBalancedServerPinging()
     {
         std::cout << "All sent pings confirmed received! Evaluating" << std::endl;
         // record least response time, check if its radder than previous, close connection, increment test index
-        if (m_ENetBalancedServerPingPeer->lowestRoundTripTime < leastResponseTime)
+        if ((int)m_ENetBalancedServerPingPeer->lowestRoundTripTime < leastResponseTime)
         {
             std::cout << "This is the new fast server!" << std::endl;
             leastResponseTime = m_ENetBalancedServerPingPeer->lowestRoundTripTime;

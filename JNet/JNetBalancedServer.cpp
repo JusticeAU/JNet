@@ -48,7 +48,7 @@ void JNet::BalancedServer::CheckInWithMasterServer()
 {
     JNet::BalancedServerUpdate update;
     update.playerCount = m_playerCount;
-    update.playerCapacity = m_ENetBalancedServerClient->peerCount;
+    update.playerCapacity = (int)m_ENetBalancedServerClient->peerCount;
     update.sessionCount = m_sessionCount;
     update.open = true;
     ENetPacket* packet = enet_packet_create(&update, sizeof(JNet::BalancedServerUpdate), ENET_PACKET_FLAG_RELIABLE);
@@ -101,7 +101,7 @@ void JNet::BalancedServer::UpdateMasterServer()
             registerPacket.port = m_myPort;
             registerPacket.playerCount = m_playerCount;
             registerPacket.playerCapacity = m_playerCapacity;
-            registerPacket.sessionCount = m_connectedGameSessions.size();
+            registerPacket.sessionCount = (int)m_connectedGameSessions.size();
             registerPacket.open = m_openForConnections;
             ENetPacket* packet = enet_packet_create(&registerPacket, sizeof(JNet::BalancedServerRegister), ENET_PACKET_FLAG_RELIABLE);
             enet_peer_send(m_ENetMasterServerPeer, 1, packet);

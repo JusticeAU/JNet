@@ -18,8 +18,8 @@ namespace JNet
 	private:
 		_ENetHost* m_ENetBalancedServerClient = nullptr;
 		_ENetPeer* m_ENetBalancedServerPeer = nullptr;
-		string m_balancedServerAddress;
-		unsigned short m_balancedServerPort;
+		string m_balancedServerAddress = "";
+		unsigned short m_balancedServerPort = 0;
 	
 	public:
 		_ENetHost* m_ENetGameSessionClient = nullptr;
@@ -32,9 +32,9 @@ namespace JNet
 		void (*m_BalancedServerDisconnectCallBack)(_ENetEvent*) = nullptr;
 
 	private:
-		string m_myName;
-		string m_myAddress;
-		unsigned short m_myPort;
+		string m_myName = "";
+		string m_myAddress = "";
+		unsigned short m_myPort = 0;
 
 	public:
 		void Initialise();

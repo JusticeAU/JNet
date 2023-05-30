@@ -18,7 +18,7 @@ using JNet::Client;
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "imgui_stdlib.h"
-#include <vector>;
+#include <vector>
 
 // Demo GameClient / GameSession data types.
 enum class JNetDemoGameSessionPacket
@@ -36,34 +36,34 @@ struct GSClientInitialise
 {
     JNetDemoGameSessionPacket type = JNetDemoGameSessionPacket::DemoGSToDemoClientInitialise;
     int playerCount;
-    int yourID;
+    int yourID = -1;
 };
 struct GSClientPlayerInfo
 {
     JNetDemoGameSessionPacket type = JNetDemoGameSessionPacket::DemoGSToDemoClientPlayerInfo;
-    int id;
+    int id = -1;
     char name[16];
-    int xPos;
-    int yPos;
+    int xPos = 0;
+    int yPos = 0;
 };
 struct GSClientPlayerUpdate
 {
     JNetDemoGameSessionPacket type = JNetDemoGameSessionPacket::DemoGSToDemoClientPlayerUpdate;
-    int id;
-    int xPos;
-    int yPos;
+    int id = -1;
+    int xPos = 0;
+    int yPos = 0;
 };
 struct GSClientPlayerDisconnect
 {
     JNetDemoGameSessionPacket type = JNetDemoGameSessionPacket::DemoGSToDemoClientPlayerDisconnect;
-    int id;
+    int id = -1;
 };
 struct ClientGSJoined
 {
     JNetDemoGameSessionPacket type = JNetDemoGameSessionPacket::DemoClientToGSJoined;
     char name[16];
-    int xPos;
-    int yPos;
+    int xPos = 0;
+    int yPos = 0;
 };
 struct ClientGSInitialised
 {
@@ -72,8 +72,8 @@ struct ClientGSInitialised
 struct ClientGSPlayerUpdate
 {
     JNetDemoGameSessionPacket type = JNetDemoGameSessionPacket::DemoClientToGSUpdate;
-    int xPos;
-    int yPos;
+    int xPos = 0;
+    int yPos = 0;
 };
 
 // Demo GameClient configuration.
@@ -186,8 +186,8 @@ int main()
             {
                 // set update packet to server.
                 ClientGSPlayerUpdate update;
-                update.xPos = playerPosition.x;
-                update.yPos = playerPosition.y;
+                update.xPos = (int)playerPosition.x;
+                update.yPos = (int)playerPosition.y;
 
                 ENetPacket* updatePacket = enet_packet_create(&update, sizeof(ClientGSPlayerUpdate), ENET_PROTOCOL_COMMAND_SEND_UNRELIABLE);
                 enet_peer_send(client.m_ENetGameSessionPeer, 0, updatePacket);
@@ -278,10 +278,9 @@ void PlayerConnectCallBack(_ENetEvent* event)
     std::cout << "Connected to Game Session." << std::endl;
     // send my own info.
     ClientGSJoined init;
-    srand(time(0));
     strcpy_s(init.name, playerName.c_str());
-    init.xPos = playerPosition.x;
-    init.yPos = playerPosition.y;
+    init.xPos = (int)playerPosition.x;
+    init.yPos = (int)playerPosition.y;
 
     ENetPacket* joinPacket = enet_packet_create(&init, sizeof(ClientGSJoined), ENET_PACKET_FLAG_RELIABLE);
     enet_peer_send(event->peer, 0, joinPacket);

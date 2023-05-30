@@ -24,35 +24,35 @@ enum class JNetDemoGameSessionPacket
 struct GSClientInitialise
 {
     JNetDemoGameSessionPacket type = JNetDemoGameSessionPacket::DemoGSToDemoClientInitialise;
-    int playerCount;
-    int yourID;
+    int playerCount = 0;
+    int yourID = 0;
 };
 struct GSClientPlayerInfo
 {
     JNetDemoGameSessionPacket type = JNetDemoGameSessionPacket::DemoGSToDemoClientPlayerInfo;
-    int id;
-    char name[16];
-    int xPos;
-    int yPos;
+    int id = 0;
+    char name[16] = "";
+    int xPos = 0;
+    int yPos = 0;
 };
 struct GSClientPlayerUpdate
 {
     JNetDemoGameSessionPacket type = JNetDemoGameSessionPacket::DemoGSToDemoClientPlayerUpdate;
-    int id;
-    int xPos;
-    int yPos;
+    int id = 0;
+    int xPos = 0;
+    int yPos = 0;
 };
 struct GSClientPlayerDisconnect
 {
     JNetDemoGameSessionPacket type = JNetDemoGameSessionPacket::DemoGSToDemoClientPlayerDisconnect;
-    int id;
+    int id = 0;
 };
 struct ClientGSJoined
 {
     JNetDemoGameSessionPacket type = JNetDemoGameSessionPacket::DemoClientToGSJoined;
-    char name[16];
-    int xPos;
-    int yPos;
+    char name[16] = "";
+    int xPos = 0;
+    int yPos = 0;
 };
 struct ClientGSInitialised
 {
@@ -61,8 +61,8 @@ struct ClientGSInitialised
 struct ClientGSPlayerUpdate
 {
     JNetDemoGameSessionPacket type = JNetDemoGameSessionPacket::DemoClientToGSUpdate;
-    int xPos;
-    int yPos;
+    int xPos = 0;
+    int yPos = 0;
 };
 
 struct PlayerInfo
@@ -158,7 +158,7 @@ void PlayerPacketCallBack(_ENetEvent* event)
         // Send Init Packet
         GSClientInitialise init;
         init.yourID = pi.info.id;
-        init.playerCount = players.size();
+        init.playerCount = (int)players.size();
         ENetPacket* initPacket = enet_packet_create(&init, sizeof(GSClientInitialise), ENET_PACKET_FLAG_RELIABLE);
         enet_peer_send(event->peer, 0, initPacket);
 
