@@ -60,5 +60,13 @@ namespace JNet
 		void InterpretBalancedServerPacket(_ENetEvent& receivedEvent);
 
 		void MakeClientPingAllServersAndConnect(_ENetPeer* peer);
+
+		void (*m_BalancedServerConnectCallBack)(_ENetEvent*) = nullptr;
+		void (*m_BalancedServerPacketCallBack)(_ENetEvent*) = nullptr;
+		void (*m_BalancedServerDisconnectCallBack)(_ENetEvent*) = nullptr;
+
+		void (*m_ClientConnectCallBack)(_ENetEvent*) = nullptr;
+		void (*m_ClientPacketCallBack)(_ENetEvent*) = nullptr;
+		void (*m_ClientDisconnectCallBack)(_ENetEvent*) = nullptr;
 	};
 }

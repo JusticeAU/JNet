@@ -27,6 +27,10 @@ namespace JNet
 		void (*m_ClientPacketCallBack)(_ENetEvent*) = nullptr;
 		void (*m_ClientDisconnectCallBack)(_ENetEvent*) = nullptr;
 
+		void (*m_BalancedServerConnectCallBack)(_ENetEvent*) = nullptr;
+		void (*m_BalancedServerPacketCallBack)(_ENetEvent*) = nullptr;
+		void (*m_BalancedServerDisconnectCallBack)(_ENetEvent*) = nullptr;
+
 	private:
 		string m_myName;
 		string m_myAddress;

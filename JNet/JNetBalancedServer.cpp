@@ -93,29 +93,41 @@ void JNet::BalancedServer::UpdateMasterServer()
         switch (MSreceivedEvent.type)
         {
         case ENET_EVENT_TYPE_CONNECT:
-            std::cout << "We have confirmed connection with the Master Server. Registering self." << std::endl;
-            {
-                JNet::BalancedServerRegister registerPacket;
-                strcpy_s(registerPacket.name, m_myName.c_str());
-                strcpy_s(registerPacket.hostname, m_myAddress.c_str()); // This should actually be from its listen/host instance
-                registerPacket.port = m_myPort;
-                registerPacket.playerCount = m_playerCount;
-                registerPacket.playerCapacity = m_playerCapacity;
-                registerPacket.sessionCount = m_connectedGameSessions.size();
-                registerPacket.open = m_openForConnections;
-                ENetPacket* packet = enet_packet_create(&registerPacket, sizeof(JNet::BalancedServerRegister), ENET_PACKET_FLAG_RELIABLE);
-                enet_peer_send(m_ENetMasterServerPeer, 1, packet);
-                m_connectedToMasterServer = true;
-            }
-            break;
-        case ENET_EVENT_TYPE_DISCONNECT:
         {
-            std::cout << "We have disconnected from the Master Server." << std::endl;
+            std::cout << "We have confirmed connection with the Master Server. Registering self." << std::endl;
+            JNet::BalancedServerRegister registerPacket;
+            strcpy_s(registerPacket.name, m_myName.c_str());
+            strcpy_s(registerPacket.hostname, m_myAddress.c_str()); // This should actually be from its listen/host instance
+            registerPacket.port = m_myPort;
+            registerPacket.playerCount = m_playerCount;
+            registerPacket.playerCapacity = m_playerCapacity;
+            registerPacket.sessionCount = m_connectedGameSessions.size();
+            registerPacket.open = m_openForConnections;
+            ENetPacket* packet = enet_packet_create(&registerPacket, sizeof(JNet::BalancedServerRegister), ENET_PACKET_FLAG_RELIABLE);
+            enet_peer_send(m_ENetMasterServerPeer, 1, packet);
+            m_connectedToMasterServer = true;
+
+            if (m_MasterServerConnectCallBack)
+                m_MasterServerConnectCallBack(&MSreceivedEvent);
+
             break;
         }
         case ENET_EVENT_TYPE_RECEIVE:
         {
             std::cout << "We received a user-defined packet from the Master Server" << std::endl;
+
+            if (m_MasterServerPacketCallBack)
+                m_MasterServerPacketCallBack(&MSreceivedEvent);
+
+            break;
+        }
+        case ENET_EVENT_TYPE_DISCONNECT:
+        {
+            std::cout << "We have disconnected from the Master Server." << std::endl;
+
+            if (m_MasterServerDisconnectCallBack)
+                m_MasterServerDisconnectCallBack(&MSreceivedEvent);
+
             break;
         }
         default:
@@ -147,13 +159,11 @@ void JNet::BalancedServer::UpdateGameSessions()
         case ENET_EVENT_TYPE_CONNECT:
             std::cout << "We have had a GameSession connect." << std::endl;
             m_sessionCount++;
+
+            if (m_GameSessionConnectCallBack)
+                m_GameSessionConnectCallBack(&GSreceivedEvent);
+
             break;
-        case ENET_EVENT_TYPE_DISCONNECT:
-        {
-            std::cout << "We have had a GameSession disconnect." << std::endl;
-            m_sessionCount--;
-            break;
-        }
         case ENET_EVENT_TYPE_RECEIVE:
         {
             std::cout << "We received a user-defined packet from a GameSession." << std::endl;
@@ -170,8 +180,25 @@ void JNet::BalancedServer::UpdateGameSessions()
                 gameSession.peer = GSreceivedEvent.peer;
                 m_connectedGameSessions.push_back(gameSession);
                 std::cout << "New Game Session registered: \"" + gameSession.name + "\"" << std::endl;
+                break;
             }
+            default:
+                break;
             }
+
+            if (m_GameSessionPacketCallBack)
+                m_GameSessionPacketCallBack(&GSreceivedEvent);
+
+            break;
+        }
+        case ENET_EVENT_TYPE_DISCONNECT:
+        {
+            std::cout << "We have had a GameSession disconnect." << std::endl;
+            m_sessionCount--;
+
+            if (m_GameSessionDisconnectCallBack)
+                m_GameSessionDisconnectCallBack(&GSreceivedEvent);
+
             break;
         }
         default:
@@ -190,6 +217,8 @@ void JNet::BalancedServer::UpdateClients()
         switch (BSreceivedEvent.type)
         {
         case ENET_EVENT_TYPE_CONNECT:
+        {
+
             std::cout << "We have had a Client connect." << std::endl;
             m_playerCount++;
             if (m_connectedGameSessions.size() > 0)
@@ -208,11 +237,10 @@ void JNet::BalancedServer::UpdateClients()
                 ENetPacket* packet = enet_packet_create(&Error, sizeof(JNet::ErrorMessage), ENET_PACKET_FLAG_RELIABLE);
                 enet_peer_send(BSreceivedEvent.peer, 1, packet);
             }
-            break;
-        case ENET_EVENT_TYPE_DISCONNECT:
-        {
-            std::cout << "We have had a Client disconnect." << std::endl;
-            m_playerCount--;
+
+            if (m_ClientConnectCallBack)
+                m_ClientConnectCallBack(&BSreceivedEvent);
+
             break;
         }
         case ENET_EVENT_TYPE_RECEIVE:
@@ -230,6 +258,20 @@ void JNet::BalancedServer::UpdateClients()
                 break;
             }
             }
+
+            if (m_ClientPacketCallBack)
+                m_ClientPacketCallBack(&BSreceivedEvent);
+
+            break;
+        }
+        case ENET_EVENT_TYPE_DISCONNECT:
+        {
+            std::cout << "We have had a Client disconnect." << std::endl;
+            m_playerCount--;
+
+            if (m_ClientDisconnectCallBack)
+                m_ClientDisconnectCallBack(&BSreceivedEvent);
+
             break;
         }
         default:

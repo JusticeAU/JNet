@@ -123,19 +123,22 @@ void JNet::Client::UpdateMasterServer()
         switch (receivedEvent.type)
         {
         case ENET_EVENT_TYPE_CONNECT:
+        {
             std::cout << "We have confirmed connection with the server. Sending Auth" << std::endl;
-            {
-                JNet::UserAuth auth;
-                // TODO something with Auth here. get rid of it? implement it in client??
-                strcpy_s(auth.username, "justin");
-                strcpy_s(auth.password, "some super password");
-                ENetPacket* packet = enet_packet_create(&auth, sizeof(JNet::UserAuth), ENET_PACKET_FLAG_RELIABLE);
-                enet_peer_send(m_ENetMasterServerPeer, 0, packet);
-            }
+            JNet::UserAuth auth;
+            // TODO something with Auth here. get rid of it? implement it in client??
+            strcpy_s(auth.username, "justin");
+            strcpy_s(auth.password, "some super password");
+            ENetPacket* packet = enet_packet_create(&auth, sizeof(JNet::UserAuth), ENET_PACKET_FLAG_RELIABLE);
+            enet_peer_send(m_ENetMasterServerPeer, 0, packet);
+
+            if (m_MasterServerConnectCallBack)
+                m_MasterServerConnectCallBack(&receivedEvent);
+
             break;
+        }
         case ENET_EVENT_TYPE_RECEIVE:
         {
-            //std::cout << "We received a user-defined packet!" << std::endl;
             JNet::JNetPacket* packet = (JNet::JNetPacket*)receivedEvent.packet->data;
             switch (packet->type)
             {
@@ -178,6 +181,10 @@ void JNet::Client::UpdateMasterServer()
             default:
                 break;
             }
+
+            if (m_MasterServerPacketCallBack)
+                m_MasterServerPacketCallBack(&receivedEvent);
+
             break;
         }
         case ENET_EVENT_TYPE_DISCONNECT:
@@ -185,10 +192,12 @@ void JNet::Client::UpdateMasterServer()
             std::cout << "We have disconnected from the Master Server." << std::endl;
             m_shouldCloseMasterServerHost = true;
 
+            if (m_MasterServerDisconnectCallBack)
+                m_MasterServerDisconnectCallBack(&receivedEvent);
+
             break;
         }
         default:
-            std::cout << "some other data received" << std::endl;
             break;
         }
     }
@@ -223,7 +232,12 @@ void JNet::Client::UpdateBalancedServer()
         switch (receivedEvent.type)
         {
         case ENET_EVENT_TYPE_CONNECT:
+        {
+            if (m_BalancedServerConnectCallBack)
+                m_BalancedServerConnectCallBack(&receivedEvent);
+
             break;
+        }
         case ENET_EVENT_TYPE_RECEIVE:
         {
             JNet::JNetPacket* packet = (JNet::JNetPacket*)receivedEvent.packet->data;
@@ -249,11 +263,18 @@ void JNet::Client::UpdateBalancedServer()
             default:
                 break;
             }
+
+            if (m_BalancedServerPacketCallBack)
+                m_BalancedServerPacketCallBack(&receivedEvent);
+
             break;
         }
         case ENET_EVENT_TYPE_DISCONNECT:
         {
             std::cout << "We have disconnected from the Balanced Server." << std::endl;
+            if (m_BalancedServerDisconnectCallBack)
+                m_BalancedServerDisconnectCallBack(&receivedEvent);
+
             break;
         }
         default:
@@ -278,6 +299,7 @@ void JNet::Client::UpdateGameSession()
 
             if (m_ClientConnectCallBack)
                 m_ClientConnectCallBack(&receivedEvent);
+
             break;
         case ENET_EVENT_TYPE_RECEIVE:
         {
@@ -287,28 +309,26 @@ void JNet::Client::UpdateGameSession()
             default:
                 break;
             }
+
             if (m_ClientPacketCallBack)
                 m_ClientPacketCallBack(&receivedEvent);
+
             break;
         }
         case ENET_EVENT_TYPE_DISCONNECT:
         {
             std::cout << "We have disconnected from the Game Session." << std::endl;
-            break;
+
             if (m_ClientDisconnectCallBack)
                 m_ClientDisconnectCallBack(&receivedEvent);
+
+            break;
         }
         default:
             std::cout << "some other data received" << std::endl;
             break;
         }
     }
-
-    // Send some bogus packet here for testing.
-    /*JNet::ErrorMessage testError;
-    ENetPacket* packet = enet_packet_create(&testError, sizeof(JNet::ErrorMessage), ENET_PACKET_FLAG_RELIABLE);
-    enet_peer_send(m_ENetGameSessionPeer, 0, packet);
-    std::cout << m_ENetGameSessionPeer->lowestRoundTripTime << std::endl;*/
 }
 
 void JNet::Client::ProcessBalancedServerPinging()
@@ -342,8 +362,6 @@ void JNet::Client::ProcessBalancedServerPinging()
 
     if (pingsSent < pingsToSend)
     {
-        // send a ping
-        //std::cout << "Sending a Ping" << std::endl;
         pingsSent++;
         JNet::Ping ping;
         ENetPacket* pingPacket = enet_packet_create(&ping, sizeof(JNet::Ping), ENET_PACKET_FLAG_RELIABLE);

@@ -36,6 +36,14 @@ namespace JNet
 		Client();
 		~Client();
 
+		void (*m_MasterServerConnectCallBack)(_ENetEvent*) = nullptr;
+		void (*m_MasterServerPacketCallBack)(_ENetEvent*) = nullptr;
+		void (*m_MasterServerDisconnectCallBack)(_ENetEvent*) = nullptr;
+
+		void (*m_BalancedServerConnectCallBack)(_ENetEvent*) = nullptr;
+		void (*m_BalancedServerPacketCallBack)(_ENetEvent*) = nullptr;
+		void (*m_BalancedServerDisconnectCallBack)(_ENetEvent*) = nullptr;
+
 		void (*m_ClientConnectCallBack)(_ENetEvent*) = nullptr;
 		void (*m_ClientPacketCallBack)(_ENetEvent*) = nullptr;
 		void (*m_ClientDisconnectCallBack)(_ENetEvent*) = nullptr;

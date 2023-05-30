@@ -34,14 +34,25 @@ void JNet::GameSession::Process()
 			GSRegister.port = m_myPort;
 			ENetPacket* packet = enet_packet_create(&GSRegister, sizeof(GameSessionRegister), ENET_PACKET_FLAG_RELIABLE);
 			enet_peer_send(m_ENetBalancedServerPeer, 0, packet);
+
+			if (m_BalancedServerConnectCallBack)
+				m_BalancedServerConnectCallBack(&BSreceivedEvent);
+
 			break;
 		}
 		case ENET_EVENT_TYPE_RECEIVE:
 		{
+			if (m_BalancedServerPacketCallBack)
+				m_BalancedServerPacketCallBack(&BSreceivedEvent);
+
 			break;
 		}
 		case ENET_EVENT_TYPE_DISCONNECT:
 		{
+
+			if (m_BalancedServerDisconnectCallBack)
+				m_BalancedServerDisconnectCallBack(&BSreceivedEvent);
+
 			break;
 		}
 		}
@@ -56,20 +67,24 @@ void JNet::GameSession::Process()
 		case ENET_EVENT_TYPE_CONNECT:
 		{
 			std::cout << "A client connected" << std::endl;
+
 			if (m_ClientConnectCallBack)
 				m_ClientConnectCallBack(&GSreceivedEvent);
+
 			break;
 		}
 		case ENET_EVENT_TYPE_RECEIVE:
 		{
 			if (m_ClientPacketCallBack)
 				m_ClientPacketCallBack(&GSreceivedEvent);
+
 			break;
 		}
 		case ENET_EVENT_TYPE_DISCONNECT:
 		{
 			if (m_ClientDisconnectCallBack)
 				m_ClientDisconnectCallBack(&GSreceivedEvent);
+
 			break;
 		}
 		}

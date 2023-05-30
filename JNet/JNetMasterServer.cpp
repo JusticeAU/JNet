@@ -35,27 +35,66 @@ void JNet::MasterServer::Process()
 		{
 		case ENET_EVENT_TYPE_CONNECT:
 		{
+			switch (receivedEvent.channelID)
+			{
+			case 0:
+			{
+				if (m_ClientConnectCallBack) m_ClientConnectCallBack(&receivedEvent);
+				break;
+			}
+			case 1:
+			{
+				if (m_BalancedServerConnectCallBack) m_BalancedServerConnectCallBack(&receivedEvent);
+				break;
+			}
 			break;
-		}
+			}
 		case ENET_EVENT_TYPE_RECEIVE:
 		{
 			switch (receivedEvent.channelID)
 			{
 			case 0:
+			{
 				InterpretUserPacket(receivedEvent);
+
+				if (m_ClientPacketCallBack) m_ClientPacketCallBack(&receivedEvent);
 				break;
+			}
 			case 1:
+			{
 				InterpretBalancedServerPacket(receivedEvent);
+
+				if (m_BalancedServerPacketCallBack) m_BalancedServerPacketCallBack(&receivedEvent);
 				break;
+			}
+			default:
+				break;
+			}
+
+			break;
+		}
+		case ENET_EVENT_TYPE_DISCONNECT:
+		{
+			switch (receivedEvent.channelID)
+			{
+			case 0:
+			{
+				if (m_ClientDisconnectCallBack) m_ClientDisconnectCallBack(&receivedEvent);
+				break;
+			}
+			case 1:
+			{
+				if (m_BalancedServerDisconnectCallBack) m_BalancedServerDisconnectCallBack(&receivedEvent);
+				break;
+			}
 			default:
 				break;
 			}
 			break;
 		}
-		case ENET_EVENT_TYPE_DISCONNECT:
-		{
-			break;
 		}
+		default:
+			break;
 		}
 	}
 }
