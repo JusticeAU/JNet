@@ -1,6 +1,5 @@
 #include "JNetClient.h"
 #include "enet/enet.h"
-#include "JNetPackets.h"
 
 #include <iostream>
 
@@ -111,6 +110,44 @@ void JNet::Client::Update()
         UpdateGameSession();
 }
 
+void JNet::Client::RequestGameSessionsFromBalancedServer()
+{
+    if (isConnectedBalancedServer)
+    {
+        JNetPacket requestForSessions;
+        requestForSessions.type = JNetPacketType::ClientRequestForAllGS;
+        ENetPacket* packet = enet_packet_create(&requestForSessions, sizeof(JNetPacket), ENET_PACKET_FLAG_RELIABLE);
+        enet_peer_send(m_ENetBalancedServerPeer, 0, packet);
+    }
+}
+
+void JNet::Client::RequestFindGameSession()
+{
+    if (isConnectedBalancedServer)
+    {
+        JNetPacket requestForSession;
+        requestForSession.type = JNetPacketType::ClientRequestForGS;
+        ENetPacket* packet = enet_packet_create(&requestForSession, sizeof(JNetPacket), ENET_PACKET_FLAG_RELIABLE);
+        enet_peer_send(m_ENetBalancedServerPeer, 0, packet);
+    }
+}
+
+void JNet::Client::SetGameSession(JNet::BalancedServerGameSessionInfo GSInfo)
+{
+    m_gameSessionName = GSInfo.name;
+    m_gameSessionAddress = GSInfo.address;
+    m_gameSessionPort = GSInfo.port;
+}
+
+void JNet::Client::GameSessionDisconnect()
+{
+    JNet::JNetPacket disconnect;
+    disconnect.type = JNet::JNetPacketType::ClientDisconnect;
+    ENetPacket* packet = enet_packet_create(&disconnect, sizeof(JNetPacket), ENET_PACKET_FLAG_RELIABLE);
+    enet_peer_send(m_ENetGameSessionPeer, 0, packet);
+    //isConnectedGameSession = false;
+}
+
 void JNet::Client::UpdateMasterServer()
 {
     ENetEvent receivedEvent; // the variable to place the info in.
@@ -125,11 +162,11 @@ void JNet::Client::UpdateMasterServer()
         case ENET_EVENT_TYPE_CONNECT:
         {
             std::cout << "We have confirmed connection with the server. Sending Auth" << std::endl;
-            JNet::UserAuth auth;
+            JNet::ClientAuth auth;
             // TODO something with Auth here. get rid of it? implement it in client??
             strcpy_s(auth.username, "justin");
             strcpy_s(auth.password, "some super password");
-            ENetPacket* packet = enet_packet_create(&auth, sizeof(JNet::UserAuth), ENET_PACKET_FLAG_RELIABLE);
+            ENetPacket* packet = enet_packet_create(&auth, sizeof(JNet::ClientAuth), ENET_PACKET_FLAG_RELIABLE);
             enet_peer_send(m_ENetMasterServerPeer, 0, packet);
 
             if (m_MasterServerConnectCallBack)
@@ -243,12 +280,16 @@ void JNet::Client::UpdateBalancedServer()
             JNet::JNetPacket* packet = (JNet::JNetPacket*)receivedEvent.packet->data;
             switch (packet->type)
             {
-            case JNetPacketType::BSGameServerInfo:
+            case JNetPacketType::BSGameSessionInfo:
             {
                 JNet::BalancedServerGameSessionInfo* GSInfo = (JNet::BalancedServerGameSessionInfo*)receivedEvent.packet->data;
-                m_gameSessionName = GSInfo->name;
-                m_gameSessionAddress = GSInfo->address;
-                m_gameSessionPort = GSInfo->port;
+                m_GameSessions.push_back(*GSInfo);
+                break;
+            }
+            case JNetPacketType::BSConnectToGameServer:
+            {
+                JNet::BalancedServerGameSessionInfo* GSInfo = (JNet::BalancedServerGameSessionInfo*)receivedEvent.packet->data; // This is actually a BalancedServerConnectToGameSession but we cast it to a similar one for use with the function below
+                SetGameSession(*GSInfo);
                 m_gameSessionReceived = true;
                 shouldConnectToGameSession = true;
                 break;
@@ -297,24 +338,25 @@ void JNet::Client::UpdateGameSession()
         {
         case ENET_EVENT_TYPE_CONNECT:
 
-            if (m_ClientConnectCallBack)
-                m_ClientConnectCallBack(&receivedEvent);
+            if (m_GameSessionConnectCallBack)
+                m_GameSessionConnectCallBack(&receivedEvent);
 
             break;
         case ENET_EVENT_TYPE_RECEIVE:
         {
 
-            if (m_ClientPacketCallBack)
-                m_ClientPacketCallBack(&receivedEvent);
+            if (m_GameSessionPacketCallBack)
+                m_GameSessionPacketCallBack(&receivedEvent);
 
             break;
         }
         case ENET_EVENT_TYPE_DISCONNECT:
         {
             std::cout << "We have disconnected from the Game Session." << std::endl;
+            isConnectedGameSession = false;
 
-            if (m_ClientDisconnectCallBack)
-                m_ClientDisconnectCallBack(&receivedEvent);
+            if (m_GameSessionDisconnectCallBack)
+                m_GameSessionDisconnectCallBack(&receivedEvent);
 
             break;
         }

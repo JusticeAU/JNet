@@ -141,7 +141,7 @@ void JNet::MasterServer::InterpretUserPacket(_ENetEvent& receivedEvent)
 	JNetPacket* packet = (JNetPacket*)receivedEvent.packet->data;
 	switch (packet->type)
 	{
-	case JNetPacketType::UAuth:
+	case JNetPacketType::ClientAuth:
 	{
 		ENetPacket* infoPacket;
 		ENetPeer* serverPeer = receivedEvent.peer;

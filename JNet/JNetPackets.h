@@ -1,12 +1,16 @@
+#pragma once
 namespace JNet
 {
 	enum class JNetPacketType // enums 0-49 are reserved for JNet. Start your custom types from 50.
 	{
-		UAuth,
-		URequestForGS,
+		ClientAuth,
+		ClientRequestForGS,
+		ClientRequestForAllGS,
+		ClientDisconnect,
 		BSRegister,
 		BSUpdate,
-		BSGameServerInfo,
+		BSGameSessionInfo,
+		BSConnectToGameServer,
 		MSRedirect,
 		MSCheckPingStart,
 		MSCheckPingServer,
@@ -21,16 +25,16 @@ namespace JNet
 		JNetPacketType type;
 	};
 
-	struct UserAuth
+	struct ClientAuth
 	{
-		JNetPacketType type = JNetPacketType::UAuth;
+		JNetPacketType type = JNetPacketType::ClientAuth;
 		char username[64] = "";
 		char password[64] = "";;
 	};
 
-	struct UserRequestForGameSession
+	struct ClientRequestForGameSession
 	{
-		JNetPacketType type = JNetPacketType::URequestForGS;
+		JNetPacketType type = JNetPacketType::ClientRequestForGS;
 	};
 
 	struct BalancedServerRegister
@@ -58,17 +62,26 @@ namespace JNet
 
 	struct BalancedServerGameSessionInfo
 	{
-		JNetPacketType type = JNetPacketType::BSGameServerInfo;
-		char name[64] = "";;
-		char address[64] = "";;
+		JNetPacketType type = JNetPacketType::BSGameSessionInfo;
+		char name[64] = "";
+		char address[64] = "";
+		int port = 0;
+		int players = 0;
+	};
+
+	struct BalancedServerConnectToGameSession
+	{
+		JNetPacketType type = JNetPacketType::BSConnectToGameServer;
+		char name[64] = "";
+		char address[64] = "";
 		int port = 0;
 	};
 
 	struct MasterServerRedirect
 	{
 		JNetPacketType type = JNetPacketType::MSRedirect;
-		char name[64] = "";;
-		char hostname[64] = "";;
+		char name[64] = "";
+		char hostname[64] = "";
 		int port = 0;
 	};
 

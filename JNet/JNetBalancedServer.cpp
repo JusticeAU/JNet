@@ -230,13 +230,13 @@ void JNet::BalancedServer::UpdateClients()
 
             std::cout << "We have had a Client connect." << std::endl;
             m_playerCount++;
-            if (m_connectedGameSessions.size() > 0)
+            /*if (m_connectedGameSessions.size() > 0)
             {
-                JNet::BalancedServerGameSessionInfo GSInfo;
+                JNet::BalancedServerConnectToGameSession GSInfo;
                 strcpy_s(GSInfo.name, m_connectedGameSessions[0].name.c_str());
                 strcpy_s(GSInfo.address, m_connectedGameSessions[0].address.c_str());
                 GSInfo.port = m_connectedGameSessions[0].port;
-                ENetPacket* packet = enet_packet_create(&GSInfo, sizeof(JNet::BalancedServerGameSessionInfo), ENET_PACKET_FLAG_RELIABLE);
+                ENetPacket* packet = enet_packet_create(&GSInfo, sizeof(JNet::BalancedServerConnectToGameSession), ENET_PACKET_FLAG_RELIABLE);
                 enet_peer_send(BSreceivedEvent.peer, 1, packet);
             }
             else
@@ -245,7 +245,7 @@ void JNet::BalancedServer::UpdateClients()
                 strcpy_s(Error.message, "No Game Sessions to connect to");
                 ENetPacket* packet = enet_packet_create(&Error, sizeof(JNet::ErrorMessage), ENET_PACKET_FLAG_RELIABLE);
                 enet_peer_send(BSreceivedEvent.peer, 1, packet);
-            }
+            }*/
 
             if (m_ClientConnectCallBack)
                 m_ClientConnectCallBack(&BSreceivedEvent);
@@ -264,6 +264,20 @@ void JNet::BalancedServer::UpdateClients()
 
                 ENetPacket* pingPacket = enet_packet_create(packet, sizeof(Ping), ENET_PACKET_FLAG_RELIABLE);
                 enet_peer_send(BSreceivedEvent.peer,0,pingPacket);
+                break;
+            }
+            case JNetPacketType::ClientRequestForAllGS:
+            {
+                for (auto const session : m_connectedGameSessions)
+                {
+                    BalancedServerGameSessionInfo info;
+                    strcpy_s(info.name, session.name.c_str());
+                    strcpy_s(info.address, session.address.c_str());
+                    info.players = 0; // TODO fix.
+                    info.port = session.port;
+                    ENetPacket* gsPacket = enet_packet_create(&info, sizeof(BalancedServerGameSessionInfo), ENET_PACKET_FLAG_RELIABLE);
+                    enet_peer_send(BSreceivedEvent.peer, 0, gsPacket);
+                }
                 break;
             }
             }

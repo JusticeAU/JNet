@@ -77,6 +77,8 @@ struct ClientGSPlayerUpdate
 };
 
 // Demo GameClient configuration.
+Client client;
+
 string playerName = "Player";
 std::vector<GSClientPlayerInfo> m_players;
 bool m_initialised = false;
@@ -88,9 +90,11 @@ ImVec2 playerSize = { 50, 50 };
 ImVec2 centrePivot = { 0.5f, 0.5f };
 
 // Demo GameClient callbacks
-void PlayerConnectCallBack(_ENetEvent* event);
-void PlayerPacketCallBack(_ENetEvent* event);
-void PlayerDisconnectCallBack(_ENetEvent* event);
+void BalancedServerConnectCallBack(_ENetEvent* event);
+
+void GameSessionConnectCallBack(_ENetEvent* event);
+void GameSessionPacketCallBack(_ENetEvent* event);
+void GameSessionDisconnectCallBack(_ENetEvent* event);
 
 int main()
 {
@@ -114,10 +118,12 @@ int main()
 
     string address = "127.0.0.1";
     int port = 6000;
-    Client client;
-    client.m_ClientConnectCallBack = PlayerConnectCallBack;
-    client.m_ClientPacketCallBack = PlayerPacketCallBack;
-    client.m_ClientDisconnectCallBack = PlayerDisconnectCallBack;
+    
+    client.m_BalancedServerConnectCallBack = BalancedServerConnectCallBack;
+
+    client.m_GameSessionConnectCallBack = GameSessionConnectCallBack;
+    client.m_GameSessionPacketCallBack = GameSessionPacketCallBack;
+    client.m_GameSessionDisconnectCallBack = GameSessionDisconnectCallBack;
 
     ImGuiWindowFlags playerObjectWindowFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoInputs;
 
@@ -133,6 +139,33 @@ int main()
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
+
+        if (client.m_GameSessions.size() > 0 && !client.IsConnectedGameSession())
+        {
+            ImGui::SetNextWindowSize({ 640, 200 });
+            ImGui::SetNextWindowPos({ 640,0 });
+            ImGui::Begin("Session Selection");
+
+            int id = 0;
+            for (auto const session : client.m_GameSessions)
+            {
+                ImGui::PushID(id);
+                ImGui::Text(session.name);
+                ImGui::SameLine();
+                ImGui::Text(session.address);
+                ImGui::SameLine();
+                if(ImGui::Button("Connect"))
+                {
+                    client.SetGameSession(session);
+                    client.ConnectToGameSession();
+                }
+                ImGui::PopID();
+                id++;
+            }
+
+            ImGui::End();
+        }
+
 
         // Show login prompt
         if (!client.IsConnectedMasterServer() && !client.IsConnectedBalancedServer())
@@ -221,12 +254,11 @@ int main()
 
         // Show overall status
         ImVec2 windowPos = { 0, 0 };
-        ImVec2 windowSize = { 1280, 63 };
+        ImVec2 windowSize = { 1280, 75 };
         ImGui::SetNextWindowPos(windowPos, ImGuiCond_Always);
         ImGui::SetNextWindowSize(windowSize);
         ImGui::Begin("Status", 0, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
         
-        ImGui::BeginDisabled();
         // Master Server
         ImGui::Text("Master Server:");
         if (client.IsConnectedMasterServer())
@@ -244,6 +276,14 @@ int main()
             ImGui::Text(" - ");
             ImGui::SameLine();
             ImGui::Text(client.GetBalancedServerName().c_str());
+
+            ImGui::PushID(2);
+            ImGui::SameLine();
+            if (ImGui::Button("Disconnect"))
+            {
+                client.GameSessionDisconnect();
+            }
+            ImGui::PopID();
         }
         // Game Session
         ImGui::Text("Game Session:");
@@ -255,8 +295,13 @@ int main()
             ImGui::Text(" - ");
             ImGui::SameLine();
             ImGui::Text(client.GetGameSessionName().c_str());
+
+            ImGui::PushID(3);
+            ImGui::SameLine();
+            if(ImGui::Button("Disconnect"))
+                client.GameSessionDisconnect();
+            ImGui::PopID();
         }
-        ImGui::EndDisabled();
         ImGui::End();
 
         // Close Out
@@ -268,12 +313,17 @@ int main()
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 
-
     glfwTerminate();
+
     return 0;
 }
 
-void PlayerConnectCallBack(_ENetEvent* event)
+void BalancedServerConnectCallBack(_ENetEvent* event)
+{
+    client.RequestGameSessionsFromBalancedServer();
+}
+
+void GameSessionConnectCallBack(_ENetEvent* event)
 {
     std::cout << "Connected to Game Session." << std::endl;
     // send my own info.
@@ -286,7 +336,7 @@ void PlayerConnectCallBack(_ENetEvent* event)
     enet_peer_send(event->peer, 0, joinPacket);
 }
 
-void PlayerPacketCallBack(_ENetEvent* event)
+void GameSessionPacketCallBack(_ENetEvent* event)
 {
     JNetDemoGameSessionPacket* packet = (JNetDemoGameSessionPacket*)event->packet->data;
 
@@ -359,7 +409,7 @@ void PlayerPacketCallBack(_ENetEvent* event)
     }
 }
 
-void PlayerDisconnectCallBack(_ENetEvent* event)
+void GameSessionDisconnectCallBack(_ENetEvent* event)
 {
     std::cout << "Client Disconnected" << std::endl;
     m_players.clear();

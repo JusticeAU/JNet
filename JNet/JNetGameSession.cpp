@@ -75,6 +75,20 @@ void JNet::GameSession::Process()
 		}
 		case ENET_EVENT_TYPE_RECEIVE:
 		{
+			JNetPacket* packet = (JNetPacket*)GSreceivedEvent.packet->data;
+			switch (packet->type)
+			{
+			case JNetPacketType::ClientDisconnect:
+			{
+				enet_peer_disconnect(GSreceivedEvent.peer,0);
+				break;
+			}
+			default:
+			{
+				break;
+			}
+			}
+
 			if (m_ClientPacketCallBack)
 				m_ClientPacketCallBack(&GSreceivedEvent);
 

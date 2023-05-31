@@ -78,9 +78,9 @@ int playerIDs = 0;
 JNet::GameSession gs;
 
 // Demo GameSession Callbacks to register with JNet client.
-void PlayerConnectCallBack(_ENetEvent* event);
-void PlayerPacketCallBack(_ENetEvent* event);
-void PlayerDisconnectCallBack(_ENetEvent* event);
+void GameSessionConnectCallBack(_ENetEvent* event);
+void GameSessionPacketCallBack(_ENetEvent* event);
+void GameSessionDisconnectCallBack(_ENetEvent* event);
 
 int main(int argc, char* argv[]) // note the starting arguments here
 {
@@ -113,9 +113,9 @@ int main(int argc, char* argv[]) // note the starting arguments here
 
     // Initialise JNet
     // Set callbacks.
-    gs.m_ClientConnectCallBack = PlayerConnectCallBack;
-    gs.m_ClientPacketCallBack = PlayerPacketCallBack;
-    gs.m_ClientDisconnectCallBack = PlayerDisconnectCallBack;
+    gs.m_ClientConnectCallBack = GameSessionConnectCallBack;
+    gs.m_ClientPacketCallBack = GameSessionPacketCallBack;
+    gs.m_ClientDisconnectCallBack = GameSessionDisconnectCallBack;
     
     // run Initialisation and start connections.
     gs.Initialise();
@@ -130,13 +130,13 @@ int main(int argc, char* argv[]) // note the starting arguments here
     }
 }
 
-void PlayerConnectCallBack(_ENetEvent* event)
+void GameSessionConnectCallBack(_ENetEvent* event)
 {
     std::cout << "Player Connected." << std::endl;
 
 }
 
-void PlayerPacketCallBack(_ENetEvent* event)
+void GameSessionPacketCallBack(_ENetEvent* event)
 {
     JNetDemoGameSessionPacket* packet = (JNetDemoGameSessionPacket*)event->packet->data;
 
@@ -233,7 +233,7 @@ void PlayerPacketCallBack(_ENetEvent* event)
     }
 }
 
-void PlayerDisconnectCallBack(_ENetEvent* event)
+void GameSessionDisconnectCallBack(_ENetEvent* event)
 {
     std::cout << "Client Disconnected from Server Call Back" << std::endl;
     // Get the player ID and broadcast to all remaining players that they disconnected.

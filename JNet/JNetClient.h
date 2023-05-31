@@ -1,6 +1,8 @@
 #pragma once
 
+#include "JNetPackets.h"
 #include <string>
+#include <list>
 
 using std::string;
 
@@ -36,6 +38,7 @@ namespace JNet
 		Client();
 		~Client();
 
+		// Callbacks to subscribe to
 		void (*m_MasterServerConnectCallBack)(_ENetEvent*) = nullptr;
 		void (*m_MasterServerPacketCallBack)(_ENetEvent*) = nullptr;
 		void (*m_MasterServerDisconnectCallBack)(_ENetEvent*) = nullptr;
@@ -44,9 +47,12 @@ namespace JNet
 		void (*m_BalancedServerPacketCallBack)(_ENetEvent*) = nullptr;
 		void (*m_BalancedServerDisconnectCallBack)(_ENetEvent*) = nullptr;
 
-		void (*m_ClientConnectCallBack)(_ENetEvent*) = nullptr;
-		void (*m_ClientPacketCallBack)(_ENetEvent*) = nullptr;
-		void (*m_ClientDisconnectCallBack)(_ENetEvent*) = nullptr;
+		void (*m_GameSessionConnectCallBack)(_ENetEvent*) = nullptr;
+		void (*m_GameSessionPacketCallBack)(_ENetEvent*) = nullptr;
+		void (*m_GameSessionDisconnectCallBack)(_ENetEvent*) = nullptr;
+
+		// Game Session Management
+		std::list<JNet::BalancedServerGameSessionInfo> m_GameSessions;
 
 	private:
 		string	m_masterServerAddress = "";
@@ -103,6 +109,13 @@ namespace JNet
 		void ConnectToGameSession();
 
 		void Update();
+
+		void RequestGameSessionsFromBalancedServer();
+		void RequestFindGameSession();
+		void SetGameSession(JNet::BalancedServerGameSessionInfo GSInfo);
+
+		void GameSessionDisconnect();
+	
 	protected:
 		void UpdateMasterServer();
 		void UpdateBalancedServer();
