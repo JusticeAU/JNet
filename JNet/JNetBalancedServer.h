@@ -61,6 +61,7 @@ namespace JNet
 		_ENetHost* m_ENetGameSessionClient = nullptr;
 		unsigned short m_myPortGS = 0;
 		vector<ConnectedGameSession> m_connectedGameSessions;
+		vector<string> m_countryCodes;
 
 	public:
 		void Initialise();
@@ -76,6 +77,8 @@ namespace JNet
 		void CheckInWithMasterServer();
 		void UpdateMasterServer();
 		void OpenForConnections();
+		void AddCountryCode(string code);
+		void SendCountryCodesToMasterServer();
 
 		void (*m_MasterServerConnectCallBack)(_ENetEvent*) = nullptr;
 		void (*m_MasterServerPacketCallBack)(_ENetEvent*) = nullptr;

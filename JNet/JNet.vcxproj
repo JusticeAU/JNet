@@ -24,6 +24,7 @@
     <ClInclude Include="JNetClient.h" />
     <ClInclude Include="JNetMasterServer.h" />
     <ClInclude Include="JNetPackets.h" />
+    <ClInclude Include="string_split.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="JNetGameSession.cpp" />

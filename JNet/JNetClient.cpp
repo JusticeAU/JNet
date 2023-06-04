@@ -286,7 +286,7 @@ void JNet::Client::UpdateBalancedServer()
                 m_GameSessions.push_back(*GSInfo);
                 break;
             }
-            case JNetPacketType::BSConnectToGameServer:
+            case JNetPacketType::BSConnectToGameSession:
             {
                 JNet::BalancedServerGameSessionInfo* GSInfo = (JNet::BalancedServerGameSessionInfo*)receivedEvent.packet->data; // This is actually a BalancedServerConnectToGameSession but we cast it to a similar one for use with the function below
                 SetGameSession(*GSInfo);

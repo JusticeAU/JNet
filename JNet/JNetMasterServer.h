@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <map>
 
 struct _ENetAddress;
 struct _ENetHost;
@@ -23,7 +24,8 @@ namespace JNet
 		{
 			LeastConnection,
 			LeastResponseTime,
-			RoundRobin
+			RoundRobin,
+			GeoLocation
 		};
 
 		struct BalancedServerReference
@@ -33,6 +35,7 @@ namespace JNet
 			string address = "undefined";
 			unsigned short port = 0;
 			unsigned short pingPort = 0;
+			std::vector<string> geoRoutingCountryCodes;
 			
 			// Matches BSUpdate Data
 			int playerCount = 0;
@@ -46,23 +49,40 @@ namespace JNet
 		_ENetAddress* m_ENetBSAddress = nullptr;
 		_ENetHost* m_ENetBSHost = nullptr;
 
-		BalanceMode m_balanceMode = BalanceMode::LeastConnection;
-
-		// round robin balance
-		int m_balanceModeRRnextServer = 0;
+		BalanceMode m_balanceMode = BalanceMode::RoundRobin;
 		vector<BalancedServerReference> m_balancedServers;
-	public:
-		void Initialize();
 
-		void Process();
+		JNet::MasterServerRedirect GetBalancedServer(_ENetPeer* peer);
 
-		JNet::MasterServerRedirect GetBalancedServer();
-		
 		void InterpretUserPacket(_ENetEvent& receivedEvent);
 		void InterpretBalancedServerPacket(_ENetEvent& receivedEvent);
 
+		// Balance Modes
+		// Round Robin
+		int m_balanceModeRRnextServer = 0;
+		// Least Response
 		void MakeClientPingAllServersAndConnect(_ENetPeer* peer);
+		// Georouting
+		struct octet
+		{
+			int min = 0;
+			int max = 0;
+			std::vector<octet> next;
+			std::string country = "";
+		};
+		std::string GetCountryFromIP(int first, int second, int third, int forth);
+		int GetIndexOfBalancedServerForCountry(string countrycode);
+		std::vector<octet> m_geoRoutingIPDatabase;
+		std::vector<string> m_geoRoutingCountryCodes;
 
+	public:
+		void Start();
+		void SetBalanceMode(BalanceMode mode) { m_balanceMode = mode; }
+		void LoadGeoIPDatabase(string filename);
+
+		void Process();
+
+		// Public callbacks for user to subscribe to
 		void (*m_BalancedServerConnectCallBack)(_ENetEvent*) = nullptr;
 		void (*m_BalancedServerPacketCallBack)(_ENetEvent*) = nullptr;
 		void (*m_BalancedServerDisconnectCallBack)(_ENetEvent*) = nullptr;

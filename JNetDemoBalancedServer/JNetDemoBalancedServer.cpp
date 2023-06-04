@@ -20,7 +20,7 @@ int main(int argc, char* argv[]) // note the starting arguments here
         port = atoi(argv[2]);
 
         // if details for self were provided.
-        if (argc == 7)
+        if (argc >= 7)
         {
             myName = argv[3];
             myAddress = argv[4];
@@ -38,6 +38,15 @@ int main(int argc, char* argv[]) // note the starting arguments here
     // Initialise JNet
     JNet::BalancedServer server;
     server.Initialise();
+    
+    if (argc > 7) // Get country codes
+    {
+        for (int i = 7; i < argc; i++)
+        {
+            string code = argv[i];
+            server.AddCountryCode(code);
+        }
+    }
     server.SetMasterServer(address, port);
     server.SetMyConnectionInfo(myName, myAddress, myPort, myPortGS);
     server.ConnectToMasterServer();

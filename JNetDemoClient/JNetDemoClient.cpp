@@ -222,7 +222,7 @@ int main()
                 update.xPos = (int)playerPosition.x;
                 update.yPos = (int)playerPosition.y;
 
-                ENetPacket* updatePacket = enet_packet_create(&update, sizeof(ClientGSPlayerUpdate), ENET_PROTOCOL_COMMAND_SEND_UNRELIABLE);
+                ENetPacket* updatePacket = enet_packet_create(&update, sizeof(ClientGSPlayerUpdate), 0);
                 enet_peer_send(client.m_ENetGameSessionPeer, 0, updatePacket);
             }
 

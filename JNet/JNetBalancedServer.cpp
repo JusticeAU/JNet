@@ -74,6 +74,23 @@ void JNet::BalancedServer::OpenForConnections()
     CheckInWithMasterServer();
 }
 
+void JNet::BalancedServer::AddCountryCode(string code)
+{
+    m_countryCodes.push_back(code);
+}
+
+void JNet::BalancedServer::SendCountryCodesToMasterServer()
+{
+    for (int i = 0; i < m_countryCodes.size(); i++)
+    {
+        JNet::BalancedServerAddCountryCode code;
+        strcpy_s(code.name, m_countryCodes[i].c_str());
+
+        ENetPacket* packet = enet_packet_create(&code, sizeof(JNet::BalancedServerAddCountryCode), ENET_PACKET_FLAG_RELIABLE);
+        enet_peer_send(m_ENetMasterServerPeer, 0, packet);
+    }
+}
+
 void JNet::BalancedServer::Update()
 {
     UpdateMasterServer();
@@ -106,6 +123,8 @@ void JNet::BalancedServer::UpdateMasterServer()
             ENetPacket* packet = enet_packet_create(&registerPacket, sizeof(JNet::BalancedServerRegister), ENET_PACKET_FLAG_RELIABLE);
             enet_peer_send(m_ENetMasterServerPeer, 1, packet);
             m_connectedToMasterServer = true;
+
+            SendCountryCodesToMasterServer();
 
             if (m_MasterServerConnectCallBack)
                 m_MasterServerConnectCallBack(&MSreceivedEvent);

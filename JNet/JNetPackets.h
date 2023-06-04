@@ -10,7 +10,8 @@ namespace JNet
 		BSRegister,
 		BSUpdate,
 		BSGameSessionInfo,
-		BSConnectToGameServer,
+		BSConnectToGameSession,
+		BSAddCountryCode,
 		MSRedirect,
 		MSCheckPingStart,
 		MSCheckPingServer,
@@ -71,10 +72,16 @@ namespace JNet
 
 	struct BalancedServerConnectToGameSession
 	{
-		JNetPacketType type = JNetPacketType::BSConnectToGameServer;
+		JNetPacketType type = JNetPacketType::BSConnectToGameSession;
 		char name[64] = "";
 		char address[64] = "";
 		int port = 0;
+	};
+
+	struct BalancedServerAddCountryCode
+	{
+		JNetPacketType type = JNetPacketType::BSAddCountryCode;
+		char name[32] = "";
 	};
 
 	struct MasterServerRedirect

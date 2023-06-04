@@ -48,5 +48,6 @@
     <ClInclude Include="JNetGameSession.h">
       <Filter>GameSession</Filter>
     </ClInclude>
+    <ClInclude Include="string_split.h" />
   </ItemGroup>
 </Project>
