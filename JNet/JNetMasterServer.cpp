@@ -434,6 +434,9 @@ std::string JNet::MasterServer::GetCountryFromIP(int first, int second, int thir
 								int max = forthRange[l].max;
 								if (forth >= min && forth <= max)
 								{
+									nanoseconds msEnd = duration_cast<nanoseconds>(system_clock::now().time_since_epoch());
+									nanoseconds duration = msEnd - msStart;
+									std::cout << "Searched IP Address in " << duration.count() << " nanoseconds." << std::endl;
 									return forthRange[l].country;
 								}
 							}
