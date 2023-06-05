@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <chrono>
 
 struct _ENetAddress;
 struct _ENetHost;
@@ -29,6 +30,14 @@ namespace JNet
 		};
 
 		void Start();
+		
+		// This function assumes a CSV file with the following columns:
+		// IPV4 Start, IPV4 End, Country code.
+		// It assumes they are in order from lowest to highest. e.g.
+		// 1.0.0.0,1.0.0.255,AU
+		// 1.0.1.0,1.0.3.255,CN
+		// 1.0.4.0,1.0.7.255,AU
+		// and so on
 		void LoadGeoIPDatabase(string filename);
 
 		void Process();
@@ -71,17 +80,30 @@ namespace JNet
 		// Balance Modes
 		// Round Robin
 		int m_balanceModeRRnextServer = 0;
+
 		// Least Response
 		void MakeClientPingAllServersAndConnect(_ENetPeer* peer);
+
 		// Georouting
-		struct octet
+		
+		// An octet is used to dive in to the geo routing IP database.
+		// It represents a section of an IP range covered by a particular area code.
+		// For example, a range described as:
+		// 1.0.4.0, 1.0.7.255, AU
+		// The first octet has a min and max of 1, the second has a min and max of 0, the third has a min of 4 and a max of 7, and the fourth has a min of 0 and a max of 255
+		// The 'next' vector contains all next possible octets.
+		// The GetCountryFromIP function dives 4 octet layers deep to find the matching country code.
+		// See LoadGeoIPDatabase function for more details.
+		struct octet 
 		{
-			int min = 0;
-			int max = 0;
+			unsigned char min = 0;
+			unsigned char max = 0;
 			std::vector<octet> next;
 			std::string country = "";
 		};
+		// Dives in to the IPDatabase to find the country code for the peers IP address. If no range covering the IP is found, the function returns "DEFAULT"
 		std::string GetCountryFromIP(int first, int second, int third, int forth);
+		// Iterates over the list of Balanced Servers searching for one that covers countrycode. If none is found, '0' is returned.
 		int GetIndexOfBalancedServerForCountry(string countrycode);
 		std::vector<octet> m_geoRoutingIPDatabase;
 		std::vector<string> m_geoRoutingCountryCodes;

@@ -7,6 +7,7 @@
 #include <string>
 #include "string_split.h"
 
+using namespace std::chrono;
 
 JNet::MasterServer::MasterServer()
 {
@@ -39,6 +40,7 @@ void JNet::MasterServer::Start()
 
 void JNet::MasterServer::LoadGeoIPDatabase(string filename)
 {
+	milliseconds msStart = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
 	std::cout << "Loading Geo IP Database" << std::endl;
 	std::ifstream file(filename.c_str()); 
 	if (!file.is_open())
@@ -66,7 +68,7 @@ void JNet::MasterServer::LoadGeoIPDatabase(string filename)
 			IPRange[i].min = atoi(firstSplit[i].c_str());
 			IPRange[i].max = atoi(secondSplit[i].c_str());
 		}
-		IPRange[3].country = country;
+		IPRange[3].country = country; // load country code in to last octet range
 
 		// Track country codes
 		bool countryExists = false;
@@ -138,7 +140,10 @@ void JNet::MasterServer::LoadGeoIPDatabase(string filename)
 			placed = true;
 		}
 	}
-	std::cout << "Loaded " << std::to_string(entries) << " IP ranges across " << std::to_string(m_geoRoutingCountryCodes.size()) << " country codes." << std::endl;
+	file.close();
+	milliseconds msEnd = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
+	milliseconds duration = msEnd - msStart;
+	std::cout << "Loaded " << std::to_string(entries) << " IP ranges across " << std::to_string(m_geoRoutingCountryCodes.size()) << " country codes in " << duration.count() << " milliseconds." << std::endl;
 }
 
 void JNet::MasterServer::Process()
@@ -397,6 +402,8 @@ void JNet::MasterServer::MakeClientPingAllServersAndConnect(_ENetPeer* peer)
 
 std::string JNet::MasterServer::GetCountryFromIP(int first, int second, int third, int forth)
 {
+	nanoseconds msStart = duration_cast<nanoseconds>(system_clock::now().time_since_epoch());
+
 	for (int i = 0; i < m_geoRoutingIPDatabase.size(); i++)
 	{
 		int min = m_geoRoutingIPDatabase[i].min;
@@ -437,6 +444,9 @@ std::string JNet::MasterServer::GetCountryFromIP(int first, int second, int thir
 		}
 	}
 
+	nanoseconds msEnd = duration_cast<nanoseconds>(system_clock::now().time_since_epoch());
+	nanoseconds duration = msEnd - msStart;
+	std::cout << "Searched IP Address in " << duration.count() << " nanoseconds." << std::endl;
 	return "DEFAULT";
 }
 
