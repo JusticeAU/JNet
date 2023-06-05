@@ -1,6 +1,6 @@
 @echo off
-echo Starting Master Server minamised listening on 127.0.0.1:6000
-start /MIN %~dp0\x64\Debug\JNetDemoMasterServer.exe
+echo Starting Master Server minamised listening on 127.0.0.1:6000-1
+start /MIN %~dp0\x64\Debug\JNetDemoMasterServer.exe 6000 6001
 
 echo Starting Balanced Server 1 minamised listening on 127.0.0.1:6050-1
 start /MIN %~dp0\x64\Debug\JNetDemoBalancedServer.exe 127.0.0.1 6001 "Australia 1" home.justinetchell.com 6050 6051 AU

@@ -5,10 +5,14 @@
 
 using JNet::MasterServer;
 
-int main()
+int main(int argc, char* argv[]) // note the starting arguments here
 {
     // Create our server instance
     MasterServer m_masterServer;
+    if(argc > 1)
+        m_masterServer.SetClientConnectionPort(atoi(argv[1]));
+    if(argc > 2)
+        m_masterServer.SetBSConnectionPort(atoi(argv[2]));
 
     // Set the balance mode.
     m_masterServer.SetBalanceMode(JNet::MasterServer::BalanceMode::GeoLocation);

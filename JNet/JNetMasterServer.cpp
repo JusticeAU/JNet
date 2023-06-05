@@ -10,13 +10,7 @@
 
 JNet::MasterServer::MasterServer()
 {
-	m_ENetClientAddress = new ENetAddress();
-	m_ENetClientAddress->host = ENET_HOST_ANY;
-	m_ENetClientAddress->port = 6000;
 
-	m_ENetBSAddress = new ENetAddress();
-	m_ENetBSAddress->host = ENET_HOST_ANY;
-	m_ENetBSAddress->port = 6001;
 }
 
 JNet::MasterServer::~MasterServer()
@@ -25,6 +19,14 @@ JNet::MasterServer::~MasterServer()
 
 void JNet::MasterServer::Start()
 {
+	m_ENetClientAddress = new ENetAddress();
+	m_ENetClientAddress->host = ENET_HOST_ANY;
+	m_ENetClientAddress->port = m_ENetClientPort;
+
+	m_ENetBSAddress = new ENetAddress();
+	m_ENetBSAddress->host = ENET_HOST_ANY;
+	m_ENetBSAddress->port = m_ENetBSPort;
+
 	if (enet_initialize() != 0)
 		std::cout << "Enet failed to initialise." << std::endl;
 

@@ -28,6 +28,14 @@ namespace JNet
 			GeoLocation
 		};
 
+		void Start();
+		void LoadGeoIPDatabase(string filename);
+
+		void Process();
+
+		void SetBalanceMode(BalanceMode mode) { m_balanceMode = mode; }
+		void SetClientConnectionPort(unsigned int port) { m_ENetClientPort = port; }
+		void SetBSConnectionPort(unsigned int port) { m_ENetBSPort = port; }
 		struct BalancedServerReference
 		{
 			_ENetPeer* peer = nullptr;
@@ -46,8 +54,11 @@ namespace JNet
 	private:
 		_ENetAddress* m_ENetClientAddress = nullptr;
 		_ENetHost* m_ENetClientHost = nullptr;
+		unsigned int m_ENetClientPort = 6000;
+
 		_ENetAddress* m_ENetBSAddress = nullptr;
 		_ENetHost* m_ENetBSHost = nullptr;
+		unsigned int m_ENetBSPort = 6001;
 
 		BalanceMode m_balanceMode = BalanceMode::RoundRobin;
 		vector<BalancedServerReference> m_balancedServers;
@@ -76,12 +87,6 @@ namespace JNet
 		std::vector<string> m_geoRoutingCountryCodes;
 
 	public:
-		void Start();
-		void SetBalanceMode(BalanceMode mode) { m_balanceMode = mode; }
-		void LoadGeoIPDatabase(string filename);
-
-		void Process();
-
 		// Public callbacks for user to subscribe to
 		void (*m_BalancedServerConnectCallBack)(_ENetEvent*) = nullptr;
 		void (*m_BalancedServerPacketCallBack)(_ENetEvent*) = nullptr;
