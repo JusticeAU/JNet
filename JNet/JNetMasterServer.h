@@ -40,6 +40,7 @@ namespace JNet
 		// and so on
 		void LoadGeoIPDatabase(string filename);
 
+		// Should be called regularly by your implementation.
 		void Process();
 
 		void SetBalanceMode(BalanceMode mode) { m_balanceMode = mode; }

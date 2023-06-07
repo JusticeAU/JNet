@@ -67,19 +67,31 @@ namespace JNet
 		void Initialise();
 		void SetMyConnectionInfo(string myName, string myAddress, unsigned int myPort, unsigned int myPortGS);
 		
+		// General Update Loop
 		void Update();
+		// Communicate with Master Server
+		void UpdateMasterServer();
+		// Communicate with Game Sessions
+		void UpdateGameSessions();
+		// Communicate with Clients.
 		void UpdateClients();
 
-		void UpdateGameSessions();
 
+		// Sets the Master Server Address and Port
 		void SetMasterServer(string address, unsigned int port);
+		// Initiates connection with Master Server. Ensure SetMasterServer has been called previously.
 		void ConnectToMasterServer();
+		// This checkin will update player utilisation for the server.
 		void CheckInWithMasterServer();
-		void UpdateMasterServer();
+		// Marks the Balanced Server as open for new connections with the Master Server.
 		void OpenForConnections();
+		// Call this in a loop to inject your country codes, then call SendCountryCodesToMasterServer to upload to the master server.
 		void AddCountryCode(string code);
+		// Uploades country codes to the master server. Ensure you've called AddCountryCode as many times as needed.
 		void SendCountryCodesToMasterServer();
 
+
+		// Callbacks
 		void (*m_MasterServerConnectCallBack)(_ENetEvent*) = nullptr;
 		void (*m_MasterServerPacketCallBack)(_ENetEvent*) = nullptr;
 		void (*m_MasterServerDisconnectCallBack)(_ENetEvent*) = nullptr;

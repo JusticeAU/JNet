@@ -101,19 +101,31 @@ namespace JNet
 		bool isConnectedGameSession = false;
 
 	public:
+		// Initialises ENet
 		void Initialise();
+		// Sets the address of the master server to connect to. Your client interface or configuration file should use this.
 		void SetMasterServer(string address, unsigned int port);
+		// Connect to the Master Server.
 		void ConnectToMasterServer();
+		// This is called internally after a response from the master server, but you can call it too.
 		void SetBalancedServer(string address, unsigned int port, string name);
+		// This is called internally after a response from the master server - but you can call it too.
 		void ConnectToBalancedServer();
+
+		// Sets the Game Session to connect to. Uses a packet struct.
+		void SetGameSession(JNet::BalancedServerGameSessionInfo GSInfo);
+		// This is called if a ConnectToGameSession packet is received, but you can call it too
 		void ConnectToGameSession();
 
+		// Main update loop
 		void Update();
 
+		// You can call this to get the Balanced Server to send you a packet for each Game Session.
 		void RequestGameSessionsFromBalancedServer();
+		// Request the Balanced Server find you a game session.
 		void RequestFindGameSession();
-		void SetGameSession(JNet::BalancedServerGameSessionInfo GSInfo);
 
+		// Cleanly disconnect from a Game Session.
 		void GameSessionDisconnect();
 	
 	protected:

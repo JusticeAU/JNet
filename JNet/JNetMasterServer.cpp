@@ -348,11 +348,11 @@ void JNet::MasterServer::InterpretBalancedServerPacket(_ENetEvent& receivedEvent
 				bs.playerCapacity = bsUpdate->playerCapacity;
 				bs.sessionCount = bsUpdate->sessionCount;
 				bs.open = bsUpdate->open;
-				/*std::cout << "Received an update event from a Balanced Server" << std::endl;
+				std::cout << "Received an update event from a Balanced Server" << std::endl;
 				std::cout << "\tPlayer Count: " << bsUpdate->playerCount
 					<< " - Player Capacity: " << bsUpdate->playerCapacity
 					<< " - Session Count: " << bsUpdate->sessionCount
-					<< " - Open for new connections: " << bsUpdate->open << std::endl;*/
+					<< " - Open for new connections: " << bsUpdate->open << std::endl;
 				break;
 			}
 		}

@@ -15,10 +15,10 @@ int main(int argc, char* argv[]) // note the starting arguments here
         m_masterServer.SetBSConnectionPort(atoi(argv[2]));
 
     // Set the balance mode.
-    m_masterServer.SetBalanceMode(JNet::MasterServer::BalanceMode::GeoLocation);
+    m_masterServer.SetBalanceMode(JNet::MasterServer::BalanceMode::LeastConnection);
 
     // This must be called if the balance mode is set to geo location.
-    m_masterServer.LoadGeoIPDatabase("asn-country-ipv4.csv"); // https://github.com/sapics/ip-location-db
+    //m_masterServer.LoadGeoIPDatabase("asn-country-ipv4.csv"); // https://github.com/sapics/ip-location-db
 
     // This initialises the ENet Hosts for clients to connect to, and balanced servers to connect to.
     m_masterServer.Start();

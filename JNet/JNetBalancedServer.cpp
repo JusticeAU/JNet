@@ -246,9 +246,10 @@ void JNet::BalancedServer::UpdateClients()
         {
         case ENET_EVENT_TYPE_CONNECT:
         {
-
             std::cout << "We have had a Client connect." << std::endl;
             m_playerCount++;
+
+            // To automatically connect the user to the first game session.
             /*if (m_connectedGameSessions.size() > 0)
             {
                 JNet::BalancedServerConnectToGameSession GSInfo;
